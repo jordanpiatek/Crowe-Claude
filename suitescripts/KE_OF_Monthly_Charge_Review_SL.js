@@ -12,15 +12,22 @@
  *   the related Sales Order.
  * - Storage is quantity on hand as of period end, by customer-owned location.
  * - Location.custrecord_order_fulfillment_entity supplies the invoice customer.
- * - One open invoice is created per selected customer/subsidiary for the month.
+ * - One open invoice is created per customer/subsidiary for the month, built
+ *   from one line per individual charge (not summed by code) so each source
+ *   transaction's contribution stays visible on the invoice.
  *
  * Before deployment, create the transaction body field configured as
  * SOURCE_INVOICE_FIELD. It must be List/Record -> Transaction, apply to Sale
  * and Purchase transactions, and store value. It prevents a PO/SO from being
  * billed again in a later month after partial receipts/fulfillments.
+ *
+ * Page flow: pick a customer + period at top (a status banner shows whether
+ * that customer/period was already invoiced), review the resulting charges
+ * below — each editable and linked back to its source PO/SO — then submit to
+ * confirm and create the invoice.
  */
-define(['N/ui/serverWidget', 'N/search', 'N/record', 'N/format', 'N/log'],
-    (serverWidget, search, record, format, log) => {
+define(['N/ui/serverWidget', 'N/search', 'N/record', 'N/format', 'N/log', 'N/url'],
+    (serverWidget, search, record, format, log, url) => {
 
     const CONFIG = Object.freeze({
         LOCATION_CUSTOMER_FIELD: 'custrecord_order_fulfillment_entity',
@@ -86,18 +93,13 @@ define(['N/ui/serverWidget', 'N/search', 'N/record', 'N/format', 'N/log'],
         START: 'custpage_start_date',
         END: 'custpage_end_date',
         CUSTOMER: 'custpage_customer',
-        SUMMARY: 'custpage_summary_list',
-        DETAILS: 'custpage_detail_list',
-        SELECT: 'custpage_select',
-        GROUP_KEY: 'custpage_group_key'
+        CONFIRM: 'custpage_confirm_create',
+        CHARGES: 'custpage_charges_list',
+        INCLUDE: 'custpage_include',
+        GROUP_KEY: 'custpage_group_key',
+        SOURCE_TYPE: 'custpage_source_type',
+        SOURCE_ID: 'custpage_source_id'
     });
-
-    // OF4 is deliberately excluded here — see CONFIG.INVOICE_ITEMS.OF4.
-    const CHARGE_CODES = Object.freeze(['OF1', 'OF2', 'OF3', 'OF5', 'OF6', 'OF7', 'OF8']);
-
-    function chargeFieldId(code) {
-        return `custpage_${code.toLowerCase()}`;
-    }
 
     function number(value) {
         const parsed = Number(value || 0);
@@ -223,9 +225,10 @@ define(['N/ui/serverWidget', 'N/search', 'N/record', 'N/format', 'N/log'],
      * which makes NetSuite reject the whole search with SSS_INVALID_SRCH_COL.
      * Rather than let one bad field take down the Suitelet, we identify which
      * column NetSuite rejected, drop only that one, and retry — looping until
-     * the search succeeds. Every dropped column is recorded in `diagnostics` so
-     * the UI can warn the admin (skipped fields read as 0/blank) instead of the
-     * page just crashing.
+     * the search succeeds (or, if we can't isolate the culprit, drop every
+     * optional column at once so this can never crash the page outright).
+     * Every dropped column is recorded in `diagnostics` so the UI can warn the
+     * admin (skipped fields read as 0/blank) instead of the page just crashing.
      */
     function loadTransactionHeaders(type, ids, cache, diagnostics) {
         const uniqueIds = [...new Set(ids.map(String).filter(Boolean))]
@@ -476,15 +479,19 @@ define(['N/ui/serverWidget', 'N/search', 'N/record', 'N/format', 'N/log'],
         return `${row.customerId}|${row.subsidiaryId || ''}`;
     }
 
-    function existingBatchKeys(endDate) {
+    /** Invoices already created by this script for the period, keyed by their KE-OF-... external id. */
+    function existingInvoiceBatches(endDate) {
         const prefix = `KE-OF-${monthKey(endDate)}-`;
-        const keys = new Set();
+        const batches = new Map();
         loadAll(search.create({
             type: search.Type.INVOICE,
             filters: [['mainline', search.Operator.IS, 'T'], 'AND', ['externalidstring', search.Operator.STARTSWITH, prefix]],
-            columns: ['externalid']
-        })).forEach(row => keys.add(String(row.getValue({ name: 'externalid' }) || '')));
-        return keys;
+            columns: ['externalid', 'internalid', 'tranid']
+        })).forEach(row => {
+            const externalId = String(row.getValue({ name: 'externalid' }) || '');
+            if (externalId) batches.set(externalId, { id: String(row.id), tranid: row.getValue({ name: 'tranid' }) || String(row.id) });
+        });
+        return batches;
     }
 
     function collectModel(period, customerId) {
@@ -496,12 +503,12 @@ define(['N/ui/serverWidget', 'N/search', 'N/record', 'N/format', 'N/log'],
         collectOutbound(period, filters, caches, charges, sourceRecords);
         collectStorage(period, filters, caches, charges);
 
-        const billedKeys = existingBatchKeys(period.endDate);
+        const invoicedBatches = existingInvoiceBatches(period.endDate);
         const groups = {};
         charges.forEach(row => {
             const key = groupKey(row);
             const externalId = `KE-OF-${monthKey(period.endDate)}-${row.customerId}-${row.subsidiaryId || 'NA'}`;
-            if (billedKeys.has(externalId)) return;
+            if (invoicedBatches.has(externalId)) return;
             if (!groups[key]) {
                 groups[key] = {
                     key,
@@ -516,7 +523,7 @@ define(['N/ui/serverWidget', 'N/search', 'N/record', 'N/format', 'N/log'],
             groups[key].charges.push(row);
             groups[key].total = money(groups[key].total + row.amount);
         });
-        return { groups, sourceRecords, diagnostics: caches.diagnostics };
+        return { groups, sourceRecords, diagnostics: caches.diagnostics, invoicedBatches };
     }
 
     function addValue(sublist, id, line, value) {
@@ -525,7 +532,41 @@ define(['N/ui/serverWidget', 'N/search', 'N/record', 'N/format', 'N/log'],
         }
     }
 
-    function buildForm(period, customerId, model, message) {
+    /** Only PO/SO-sourced charges have a real transaction to drill into. */
+    function sourceUrl(row) {
+        if (row.sourceType !== record.Type.PURCHASE_ORDER && row.sourceType !== record.Type.SALES_ORDER) return '';
+        if (!row.sourceId) return '';
+        try {
+            return url.resolveRecord({ recordType: row.sourceType, recordId: row.sourceId, isEditMode: false });
+        } catch (error) {
+            log.debug({ title: 'Could not resolve source transaction URL', details: error.message });
+            return '';
+        }
+    }
+
+    function statusHtml(customerId, invoicedForCustomer, groups, message) {
+        const total = groups.reduce((sum, group) => sum + group.total, 0);
+        const chargeCount = groups.reduce((count, group) => count + group.charges.length, 0);
+
+        let statusLine;
+        if (!customerId) {
+            statusLine = '<span style="color:#5a6472">Select a customer above to review this period\'s charges.</span>';
+        } else if (invoicedForCustomer.length) {
+            const refs = invoicedForCustomer.map(entry => `Invoice #${entry.tranid}`).join(', ');
+            statusLine = `<span style="color:#176b2c"><b>Already invoiced</b> for this period — ${refs}.</span>`;
+        } else if (!groups.length) {
+            statusLine = '<span style="color:#5a6472">Not yet invoiced — no billable charges found for this customer/period.</span>';
+        } else {
+            statusLine = `<span style="color:#8a5a00"><b>Not yet invoiced</b> — ${chargeCount} charge(s) totaling ${money(total).toFixed(2)} ready for review below.</span>`;
+        }
+
+        return `<div style="padding:12px;background:#f4f7fa;border:1px solid #d5dce5;margin:8px 0;">
+            ${statusLine}
+            ${message ? `<div style="margin-top:8px;color:#176b2c"><b>${message}</b></div>` : ''}
+        </div>`;
+    }
+
+    function buildForm(period, customerId, model, invoicedForCustomer, message) {
         const form = serverWidget.createForm({ title: 'Monthly Order Fulfillment Charge Review' });
         const start = form.addField({ id: PAGE.START, type: serverWidget.FieldType.DATE, label: 'Period Start' });
         start.isMandatory = true;
@@ -534,104 +575,95 @@ define(['N/ui/serverWidget', 'N/search', 'N/record', 'N/format', 'N/log'],
         end.isMandatory = true;
         end.defaultValue = dateText(period.endDate);
         const customer = form.addField({ id: PAGE.CUSTOMER, type: serverWidget.FieldType.SELECT, label: 'Customer', source: 'customer' });
+        customer.isMandatory = true;
         customer.defaultValue = customerId || '';
 
         const groups = Object.values(model.groups).sort((a, b) => a.customerText.localeCompare(b.customerText));
-        const total = groups.reduce((sum, group) => sum + group.total, 0);
-        const summaryHtml = form.addField({ id: 'custpage_summary_html', type: serverWidget.FieldType.INLINEHTML, label: 'Summary' });
-        summaryHtml.defaultValue = `<div style="padding:12px;background:#f4f7fa;border:1px solid #d5dce5;margin:8px 0;">
-            <b>${groups.length}</b> customer invoice(s) &nbsp; | &nbsp;
-            <b>${groups.reduce((count, group) => count + group.charges.length, 0)}</b> charge components &nbsp; | &nbsp;
-            <b>${money(total).toFixed(2)}</b> total
-            ${message ? `<div style="margin-top:8px;color:#176b2c"><b>${message}</b></div>` : ''}
-        </div>`;
+        const html = form.addField({ id: 'custpage_status_html', type: serverWidget.FieldType.INLINEHTML, label: 'Status' });
+        html.defaultValue = statusHtml(customerId, invoicedForCustomer, groups, message);
 
-        // INLINEEDITOR (not LIST) so every OF amount below is directly editable in the
-        // grid before submit — a search-sourced field that came back 0 (missing/
-        // misconfigured column) can be corrected by hand instead of blocking the invoice.
-        const summary = form.addSublist({ id: PAGE.SUMMARY, type: serverWidget.SublistType.INLINEEDITOR, label: 'Invoices to Create — Select by Customer, Edit Amounts as Needed' });
-        summary.addMarkAllButtons();
-        summary.addField({ id: PAGE.SELECT, type: serverWidget.FieldType.CHECKBOX, label: 'Create' });
-        summary.addField({ id: PAGE.GROUP_KEY, type: serverWidget.FieldType.TEXT, label: 'Group Key' })
+        const alreadyInvoiced = customerId && invoicedForCustomer.length;
+        if (customerId && !alreadyInvoiced && groups.length) {
+            const confirm = form.addField({ id: PAGE.CONFIRM, type: serverWidget.FieldType.CHECKBOX, label: 'Confirm: create the invoice below for this customer/period' });
+            confirm.defaultValue = 'F';
+        }
+
+        // INLINEEDITOR so amount/description are directly editable per charge —
+        // a search-sourced value that came back 0 (missing/misconfigured search
+        // column) can be corrected by hand instead of blocking invoice creation.
+        // addMarkAllButtons() is not supported on INLINEEDITOR, so rows default
+        // to included and staff uncheck specific ones to exclude them instead.
+        const charges = form.addSublist({ id: PAGE.CHARGES, type: serverWidget.SublistType.INLINEEDITOR, label: 'Charges — Edit or Exclude, Then Confirm Above to Invoice' });
+        charges.addField({ id: PAGE.INCLUDE, type: serverWidget.FieldType.CHECKBOX, label: 'Include' });
+        charges.addField({ id: PAGE.GROUP_KEY, type: serverWidget.FieldType.TEXT, label: 'Group Key' })
             .updateDisplayType({ displayType: serverWidget.FieldDisplayType.HIDDEN });
-        summary.addField({ id: 'custpage_customer_name', type: serverWidget.FieldType.TEXT, label: 'Customer' })
+        charges.addField({ id: PAGE.SOURCE_TYPE, type: serverWidget.FieldType.TEXT, label: 'Source Record Type' })
+            .updateDisplayType({ displayType: serverWidget.FieldDisplayType.HIDDEN });
+        charges.addField({ id: PAGE.SOURCE_ID, type: serverWidget.FieldType.TEXT, label: 'Source Record Id' })
+            .updateDisplayType({ displayType: serverWidget.FieldDisplayType.HIDDEN });
+        charges.addField({ id: 'custpage_charge_code', type: serverWidget.FieldType.TEXT, label: 'Code' })
             .updateDisplayType({ displayType: serverWidget.FieldDisplayType.DISABLED });
-        CHARGE_CODES.forEach(code => summary.addField({ id: chargeFieldId(code), type: serverWidget.FieldType.CURRENCY, label: code }));
-        summary.addField({ id: 'custpage_group_total', type: serverWidget.FieldType.CURRENCY, label: 'Invoice Total' })
+        charges.addField({ id: 'custpage_charge_description', type: serverWidget.FieldType.TEXT, label: 'Description' });
+        charges.addField({ id: 'custpage_charge_amount', type: serverWidget.FieldType.CURRENCY, label: 'Amount' });
+        charges.addField({ id: 'custpage_charge_source', type: serverWidget.FieldType.TEXT, label: 'Source Transaction' })
+            .updateDisplayType({ displayType: serverWidget.FieldDisplayType.DISABLED });
+        charges.addField({ id: 'custpage_charge_view', type: serverWidget.FieldType.URL, label: 'View Source' });
+        charges.addField({ id: 'custpage_charge_location', type: serverWidget.FieldType.TEXT, label: 'Location' })
+            .updateDisplayType({ displayType: serverWidget.FieldDisplayType.DISABLED });
+        charges.addField({ id: 'custpage_charge_calc', type: serverWidget.FieldType.TEXT, label: 'Calculation' })
             .updateDisplayType({ displayType: serverWidget.FieldDisplayType.DISABLED });
 
-        groups.forEach((group, line) => {
-            const byCode = group.charges.reduce((out, row) => {
-                out[row.code] = money(number(out[row.code]) + row.amount);
-                return out;
-            }, {});
-            addValue(summary, PAGE.GROUP_KEY, line, group.key);
-            addValue(summary, 'custpage_customer_name', line, group.customerText);
-            CHARGE_CODES.forEach(code => addValue(summary, chargeFieldId(code), line, (byCode[code] || 0).toFixed(2)));
-            addValue(summary, 'custpage_group_total', line, group.total.toFixed(2));
-        });
-
-        const details = form.addSublist({ id: PAGE.DETAILS, type: serverWidget.SublistType.LIST, label: 'Charge Detail' });
-        ['Customer', 'Code', 'Description', 'Amount', 'Source', 'Location', 'Calculation'].forEach((label, index) => {
-            const ids = ['customer', 'code', 'description', 'amount', 'source', 'location', 'calculation'];
-            details.addField({ id: `custpage_detail_${ids[index]}`, type: label === 'Amount' ? serverWidget.FieldType.CURRENCY : serverWidget.FieldType.TEXT, label });
-        });
-        let detailLine = 0;
+        let line = 0;
         groups.forEach(group => group.charges.forEach(row => {
-            addValue(details, 'custpage_detail_customer', detailLine, group.customerText);
-            addValue(details, 'custpage_detail_code', detailLine, row.code);
-            addValue(details, 'custpage_detail_description', detailLine, row.description);
-            addValue(details, 'custpage_detail_amount', detailLine, row.amount.toFixed(2));
-            addValue(details, 'custpage_detail_source', detailLine, row.sourceText);
-            addValue(details, 'custpage_detail_location', detailLine, row.locationText);
-            addValue(details, 'custpage_detail_calculation', detailLine, row.memo);
-            detailLine += 1;
+            addValue(charges, PAGE.INCLUDE, line, 'T');
+            addValue(charges, PAGE.GROUP_KEY, line, group.key);
+            addValue(charges, PAGE.SOURCE_TYPE, line, row.sourceType);
+            addValue(charges, PAGE.SOURCE_ID, line, row.sourceId);
+            addValue(charges, 'custpage_charge_code', line, row.code);
+            addValue(charges, 'custpage_charge_description', line, `${group.customerText}: ${row.description}`);
+            addValue(charges, 'custpage_charge_amount', line, row.amount.toFixed(2));
+            addValue(charges, 'custpage_charge_source', line, row.sourceText);
+            addValue(charges, 'custpage_charge_view', line, sourceUrl(row));
+            addValue(charges, 'custpage_charge_location', line, row.locationText);
+            addValue(charges, 'custpage_charge_calc', line, row.memo);
+            line += 1;
         }));
 
-        form.addSubmitButton({ label: 'Apply Filters / Create Selected Open Invoices' });
+        if (customerId && !alreadyInvoiced && groups.length) {
+            form.addSubmitButton({ label: 'Create Invoice' });
+        } else {
+            form.addSubmitButton({ label: 'Apply Filters' });
+        }
         return form;
     }
 
-    function selectedGroupKeys(request) {
-        const selected = new Set();
-        const count = request.getLineCount({ group: PAGE.SUMMARY });
-        for (let line = 0; line < count; line += 1) {
-            if (request.getSublistValue({ group: PAGE.SUMMARY, name: PAGE.SELECT, line }) === 'T') {
-                selected.add(String(request.getSublistValue({ group: PAGE.SUMMARY, name: PAGE.GROUP_KEY, line })));
-            }
-        }
-        return selected;
-    }
-
     /**
-     * Reads the (possibly staff-edited) per-code amounts back out of the summary
-     * grid, keyed by group key. The page is pre-filled with the calculated
-     * defaults, but since the grid is an INLINEEDITOR, anything typed over those
-     * defaults before submit is what actually gets invoiced — this is what lets a
-     * $0 caused by a bad search column get corrected by hand instead of shipping
-     * a wrong invoice.
+     * Reads the (possibly staff-edited) charge grid back out of the request,
+     * grouped by group key. Each row keeps its own amount/description rather
+     * than being summed by code, so the resulting invoice mirrors what was on
+     * screen — including manual corrections and excluded rows — line for line.
      */
-    function readSummaryOverrides(request) {
-        const overrides = {};
-        const count = request.getLineCount({ group: PAGE.SUMMARY });
+    function readChargeRows(request) {
+        const rowsByGroup = {};
+        const count = request.getLineCount({ group: PAGE.CHARGES });
         for (let line = 0; line < count; line += 1) {
-            const key = String(request.getSublistValue({ group: PAGE.SUMMARY, name: PAGE.GROUP_KEY, line }));
-            overrides[key] = CHARGE_CODES.reduce((out, code) => {
-                out[code] = money(request.getSublistValue({ group: PAGE.SUMMARY, name: chargeFieldId(code), line }));
-                return out;
-            }, {});
+            if (request.getSublistValue({ group: PAGE.CHARGES, name: PAGE.INCLUDE, line }) !== 'T') continue;
+            const key = String(request.getSublistValue({ group: PAGE.CHARGES, name: PAGE.GROUP_KEY, line }));
+            const amount = money(request.getSublistValue({ group: PAGE.CHARGES, name: 'custpage_charge_amount', line }));
+            if (!amount) continue;
+            (rowsByGroup[key] = rowsByGroup[key] || []).push({
+                code: request.getSublistValue({ group: PAGE.CHARGES, name: 'custpage_charge_code', line }),
+                description: request.getSublistValue({ group: PAGE.CHARGES, name: 'custpage_charge_description', line }),
+                amount,
+                sourceType: request.getSublistValue({ group: PAGE.CHARGES, name: PAGE.SOURCE_TYPE, line }),
+                sourceId: request.getSublistValue({ group: PAGE.CHARGES, name: PAGE.SOURCE_ID, line })
+            });
         }
-        return overrides;
+        return rowsByGroup;
     }
 
-    function defaultTotals(group) {
-        return group.charges.reduce((out, row) => {
-            out[row.code] = money(number(out[row.code]) + row.amount);
-            return out;
-        }, {});
-    }
-
-    function createInvoice(group, period, totals) {
+    /** One invoice line per charge row — matches the source data 1:1 instead of summing by code. */
+    function createInvoiceFromRows(group, period, rows) {
         const invoice = record.create({ type: record.Type.INVOICE, isDynamic: false });
         if (CONFIG.INVOICE_FORM_ID) invoice.setValue({ fieldId: 'customform', value: CONFIG.INVOICE_FORM_ID });
         if (group.subsidiaryId) invoice.setValue({ fieldId: 'subsidiary', value: Number(group.subsidiaryId) });
@@ -645,25 +677,18 @@ define(['N/ui/serverWidget', 'N/search', 'N/record', 'N/format', 'N/log'],
             }
         }
 
-        // Filter before indexing: totals may carry a $0 entry for every charge code
-        // (the summary grid submits all of them), and setting sublist values at a
-        // skipped line index would leave gaps in the invoice's item sublist.
-        Object.keys(totals).filter(code => code !== 'OF4' && totals[code]).sort().forEach((code, line) => {
-            invoice.setSublistValue({ sublistId: 'item', fieldId: 'item', line, value: CONFIG.INVOICE_ITEMS[code] });
+        rows.forEach((row, line) => {
+            invoice.setSublistValue({ sublistId: 'item', fieldId: 'item', line, value: CONFIG.INVOICE_ITEMS[row.code] });
             invoice.setSublistValue({ sublistId: 'item', fieldId: 'quantity', line, value: 1 });
-            invoice.setSublistValue({ sublistId: 'item', fieldId: 'rate', line, value: totals[code] });
-            const refs = [...new Set(group.charges.filter(row => row.code === code).map(row => row.sourceText).filter(Boolean))];
-            invoice.setSublistValue({
-                sublistId: 'item', fieldId: 'description', line,
-                value: `${code} - ${CONFIG.DESCRIPTIONS[code]}${refs.length ? ` (${refs.join(', ')})` : ''}`.slice(0, 999)
-            });
+            invoice.setSublistValue({ sublistId: 'item', fieldId: 'rate', line, value: row.amount });
+            invoice.setSublistValue({ sublistId: 'item', fieldId: 'description', line, value: String(row.description || '').slice(0, 999) });
         });
         return String(invoice.save({ enableSourcing: true, ignoreMandatoryFields: false }));
     }
 
-    function markSourceTransactions(group, invoiceId) {
+    function markSourceTransactions(rows, invoiceId) {
         const unique = {};
-        group.charges.filter(row => row.sourceType === record.Type.PURCHASE_ORDER || row.sourceType === record.Type.SALES_ORDER)
+        rows.filter(row => row.sourceType === record.Type.PURCHASE_ORDER || row.sourceType === record.Type.SALES_ORDER)
             .forEach(row => { unique[`${row.sourceType}|${row.sourceId}`] = row; });
         Object.values(unique).forEach(row => {
             record.submitFields({
@@ -683,26 +708,28 @@ define(['N/ui/serverWidget', 'N/search', 'N/record', 'N/format', 'N/log'],
             endDate: parseDate(params[PAGE.END], defaults.endDate)
         };
         const customerId = String(params[PAGE.CUSTOMER] || '');
-        let model = collectModel(period, customerId);
+        // Collecting is scoped to one customer at a time — no customer, no search cost.
+        let model = customerId
+            ? collectModel(period, customerId)
+            : { groups: {}, sourceRecords: {}, diagnostics: { invalidColumns: {} }, invoicedBatches: new Map() };
         let message = '';
 
-        if (context.request.method === 'POST') {
-            const selected = selectedGroupKeys(context.request);
-            if (selected.size) {
-                const overrides = readSummaryOverrides(context.request);
-                const created = [];
-                selected.forEach(key => {
-                    const group = model.groups[key];
-                    if (!group) throw new Error(`Customer group ${key} is no longer eligible. Refresh and review again.`);
-                    const totals = overrides[key] || defaultTotals(group);
-                    const invoiceId = createInvoice(group, period, totals);
-                    markSourceTransactions(group, invoiceId);
-                    created.push({ invoiceId, amount: Object.values(totals).reduce((sum, value) => sum + number(value), 0) });
-                });
-                message = `Created ${created.length} open invoice(s), total ${money(created.reduce((sum, row) => sum + row.amount, 0)).toFixed(2)}.`;
+        if (context.request.method === 'POST' && customerId && params[PAGE.CONFIRM] === 'T') {
+            const rowsByGroup = readChargeRows(context.request);
+            const created = [];
+            Object.keys(rowsByGroup).forEach(key => {
+                const group = model.groups[key];
+                const rows = rowsByGroup[key];
+                if (!group || !rows.length) return;
+                const invoiceId = createInvoiceFromRows(group, period, rows);
+                markSourceTransactions(rows, invoiceId);
+                created.push({ invoiceId, amount: rows.reduce((sum, row) => sum + row.amount, 0) });
+            });
+            if (created.length) {
+                message = `Created ${created.length} invoice(s), total ${money(created.reduce((sum, row) => sum + row.amount, 0)).toFixed(2)}.`;
                 model = collectModel(period, customerId);
             } else {
-                message = 'Filters applied. No invoices were created.';
+                message = 'Nothing was included to invoice.';
             }
         }
 
@@ -711,10 +738,16 @@ define(['N/ui/serverWidget', 'N/search', 'N/record', 'N/format', 'N/log'],
             .filter(entry => entry.columns.length)
             .map(entry => `${entry.type}: ${entry.columns.join(', ')}`);
         if (invalidColumnNotes.length) {
-            message = `Warning: these fields are invalid search columns on the noted transaction type right now — likely missing, or Applies To/sourcing config doesn't cover that type — so they were skipped this run (amounts sourced from them read as 0 below; edit the OF columns in the grid directly if you need to correct them before creating invoices; if the skipped field is "${CONFIG.SOURCE_INVOICE_FIELD}", duplicate-invoice protection is also OFF). Fix the field(s) in NetSuite, then re-run. ${invalidColumnNotes.join(' | ')} ${message}`;
+            message = `Warning: these fields are invalid search columns on the noted transaction type right now — likely missing, or Applies To/sourcing config doesn't cover that type — so they were skipped this run (amounts sourced from them read as 0 below; edit the Amount column directly if you need to correct them before creating the invoice; if the skipped field is "${CONFIG.SOURCE_INVOICE_FIELD}", duplicate-invoice protection is also OFF). Fix the field(s) in NetSuite, then re-run. ${invalidColumnNotes.join(' | ')} ${message}`;
         }
 
-        context.response.writePage(buildForm(period, customerId, model, message));
+        const invoicedForCustomer = customerId
+            ? [...model.invoicedBatches.entries()]
+                .filter(([key]) => key.startsWith(`KE-OF-${monthKey(period.endDate)}-${customerId}-`))
+                .map(([, entry]) => entry)
+            : [];
+
+        context.response.writePage(buildForm(period, customerId, model, invoicedForCustomer, message));
     }
 
     return { onRequest };
