@@ -198,50 +198,64 @@ define(['N/ui/serverWidget', 'N/search', 'N/record', 'N/format', 'N/log'],
         return !!error && (error.name === 'SSS_INVALID_SRCH_COL' || error.name === 'INVALID_SRCH_COL');
     }
 
+    /** Pulls the offending field id out of the SSS_INVALID_SRCH_COL message text. */
+    function extractInvalidColumnName(error) {
+        const message = (error && error.message) || '';
+        const match = message.match(/:\s*([^\s]+)\s*$/);
+        return match ? match[1].replace(/\.+$/, '') : null;
+    }
+
     /**
      * Load transaction headers in batched searches. A record.load on a standard
      * transaction costs 10 governance units; loading hundreds individually can
      * exhaust a Suitelet's 1,000-unit allowance before the page renders.
      *
-     * SOURCE_INVOICE_FIELD is requested defensively: if that custom field has not
-     * been created yet, or its "Applies To" subtab does not include this record
-     * type, NetSuite raises SSS_INVALID_SRCH_COL for the whole search. Rather than
-     * let that take down the Suitelet, we retry without the column, disable
-     * duplicate-invoice protection for the request, and flag it via `diagnostics`
-     * so the UI can warn the admin instead of showing a stack trace.
+     * Body columns (including SOURCE_INVOICE_FIELD) are requested defensively:
+     * any of them may be invalid for this record type — field not created yet,
+     * or its "Applies To"/sourcing config doesn't cover this transaction type —
+     * which makes NetSuite reject the whole search with SSS_INVALID_SRCH_COL.
+     * Rather than let one bad field take down the Suitelet, we identify which
+     * column NetSuite rejected, drop only that one, and retry — looping until
+     * the search succeeds. Every dropped column is recorded in `diagnostics` so
+     * the UI can warn the admin (skipped fields read as 0/blank) instead of the
+     * page just crashing.
      */
     function loadTransactionHeaders(type, ids, cache, diagnostics) {
         const uniqueIds = [...new Set(ids.map(String).filter(Boolean))]
             .filter(id => !cache[`${type}:${id}`]);
         if (!uniqueIds.length) return;
 
-        const bodyColumns = Object.keys(CONFIG.BODY).map(keyName => CONFIG.BODY[keyName]);
-        const baseColumns = ['internalid', 'tranid', 'entity', 'subsidiary'].concat(bodyColumns);
+        if (diagnostics) diagnostics.invalidColumns = diagnostics.invalidColumns || {};
+        const knownBad = (diagnostics && diagnostics.invalidColumns[type]) || new Set();
+        if (diagnostics) diagnostics.invalidColumns[type] = knownBad;
+
+        const optionalColumns = [CONFIG.SOURCE_INVOICE_FIELD].concat(Object.keys(CONFIG.BODY).map(keyName => CONFIG.BODY[keyName]));
+        const fixedColumns = ['internalid', 'tranid', 'entity', 'subsidiary'];
+        let requestColumns = fixedColumns.concat(optionalColumns.filter(col => !knownBad.has(col)));
 
         chunks(uniqueIds, 500).forEach(batch => {
-            const includeSourceField = !diagnostics || !diagnostics.sourceFieldMissing;
-            const runSearch = columns => loadAll(search.create({
-                type,
-                filters: [
-                    ['mainline', search.Operator.IS, 'T'], 'AND',
-                    ['internalid', search.Operator.ANYOF, batch]
-                ],
-                columns
-            }));
-
             let rows;
-            let sourceFieldIncluded = includeSourceField;
-            try {
-                rows = runSearch(includeSourceField ? baseColumns.concat(CONFIG.SOURCE_INVOICE_FIELD) : baseColumns);
-            } catch (error) {
-                if (!includeSourceField || !isInvalidColumnError(error)) throw error;
-                if (diagnostics) diagnostics.sourceFieldMissing = true;
-                sourceFieldIncluded = false;
-                log.audit({
-                    title: 'SOURCE_INVOICE_FIELD unavailable',
-                    details: `Column "${CONFIG.SOURCE_INVOICE_FIELD}" is invalid on a ${type} search. Verify the field exists, is List/Record -> Transaction, stores a value, and applies to both Sale and Purchase forms. Duplicate-invoice protection is disabled for this run. Original error: ${error.message}`
-                });
-                rows = runSearch(baseColumns);
+            for (;;) {
+                try {
+                    rows = loadAll(search.create({
+                        type,
+                        filters: [
+                            ['mainline', search.Operator.IS, 'T'], 'AND',
+                            ['internalid', search.Operator.ANYOF, batch]
+                        ],
+                        columns: requestColumns
+                    }));
+                    break;
+                } catch (error) {
+                    const badColumn = isInvalidColumnError(error) ? extractInvalidColumnName(error) : null;
+                    if (!badColumn || !requestColumns.includes(badColumn)) throw error;
+                    knownBad.add(badColumn);
+                    requestColumns = requestColumns.filter(col => col !== badColumn);
+                    log.audit({
+                        title: 'Invalid search column skipped',
+                        details: `Column "${badColumn}" is invalid on a ${type} search. Verify the field exists, stores a value, and its Applies To/sourcing config covers this record type. Skipping it for this run — dependent amounts will read as 0. Original error: ${error.message}`
+                    });
+                }
             }
 
             rows.forEach(row => {
@@ -252,9 +266,9 @@ define(['N/ui/serverWidget', 'N/search', 'N/record', 'N/format', 'N/log'],
                     entity: String(row.getValue({ name: 'entity' }) || ''),
                     entityText: row.getText({ name: 'entity' }) || '',
                     subsidiary: String(row.getValue({ name: 'subsidiary' }) || ''),
-                    alreadyInvoiced: sourceFieldIncluded ? String(row.getValue({ name: CONFIG.SOURCE_INVOICE_FIELD }) || '') : '',
+                    alreadyInvoiced: knownBad.has(CONFIG.SOURCE_INVOICE_FIELD) ? '' : String(row.getValue({ name: CONFIG.SOURCE_INVOICE_FIELD }) || ''),
                     values: Object.keys(CONFIG.BODY).reduce((out, keyName) => {
-                        out[keyName] = row.getValue({ name: CONFIG.BODY[keyName] });
+                        out[keyName] = knownBad.has(CONFIG.BODY[keyName]) ? 0 : row.getValue({ name: CONFIG.BODY[keyName] });
                         return out;
                     }, {})
                 };
@@ -462,7 +476,7 @@ define(['N/ui/serverWidget', 'N/search', 'N/record', 'N/format', 'N/log'],
     function collectModel(period, customerId) {
         const charges = [];
         const sourceRecords = {};
-        const caches = { locations: {}, customers: {}, transactions: {}, vendors: {}, diagnostics: { sourceFieldMissing: false } };
+        const caches = { locations: {}, customers: {}, transactions: {}, vendors: {}, diagnostics: { invalidColumns: {} } };
         const filters = { customerId: String(customerId || '') };
         collectInbound(period, filters, caches, charges, sourceRecords);
         collectOutbound(period, filters, caches, charges, sourceRecords);
@@ -651,8 +665,12 @@ define(['N/ui/serverWidget', 'N/search', 'N/record', 'N/format', 'N/log'],
             }
         }
 
-        if (model.diagnostics && model.diagnostics.sourceFieldMissing) {
-            message = `Warning: custom field "${CONFIG.SOURCE_INVOICE_FIELD}" is missing or is not a valid search column on Sales/Purchase Order transactions right now, so duplicate-invoice protection is OFF. Create/fix the field per the script header comment, then re-run. ${message}`;
+        const invalidColumnNotes = Object.keys(model.diagnostics && model.diagnostics.invalidColumns || {})
+            .map(type => ({ type, columns: [...model.diagnostics.invalidColumns[type]] }))
+            .filter(entry => entry.columns.length)
+            .map(entry => `${entry.type}: ${entry.columns.join(', ')}`);
+        if (invalidColumnNotes.length) {
+            message = `Warning: these fields are invalid search columns on the noted transaction type right now — likely missing, or Applies To/sourcing config doesn't cover that type — so they were skipped this run (amounts sourced from them read as 0; if the skipped field is "${CONFIG.SOURCE_INVOICE_FIELD}", duplicate-invoice protection is also OFF). Fix them in NetSuite, then re-run. ${invalidColumnNotes.join(' | ')} ${message}`;
         }
 
         context.response.writePage(buildForm(period, customerId, model, message));
