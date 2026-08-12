@@ -92,6 +92,13 @@ define(['N/ui/serverWidget', 'N/search', 'N/record', 'N/format', 'N/log'],
         GROUP_KEY: 'custpage_group_key'
     });
 
+    // OF4 is deliberately excluded here — see CONFIG.INVOICE_ITEMS.OF4.
+    const CHARGE_CODES = Object.freeze(['OF1', 'OF2', 'OF3', 'OF5', 'OF6', 'OF7', 'OF8']);
+
+    function chargeFieldId(code) {
+        return `custpage_${code.toLowerCase()}`;
+    }
+
     function number(value) {
         const parsed = Number(value || 0);
         return Number.isFinite(parsed) ? parsed : 0;
@@ -247,13 +254,20 @@ define(['N/ui/serverWidget', 'N/search', 'N/record', 'N/format', 'N/log'],
                     }));
                     break;
                 } catch (error) {
-                    const badColumn = isInvalidColumnError(error) ? extractInvalidColumnName(error) : null;
-                    if (!badColumn || !requestColumns.includes(badColumn)) throw error;
-                    knownBad.add(badColumn);
-                    requestColumns = requestColumns.filter(col => col !== badColumn);
+                    const looksLikeInvalidColumn = isInvalidColumnError(error)
+                        || /invalid column|not in proper syntax/i.test((error && error.message) || '');
+                    if (!looksLikeInvalidColumn) throw error;
+
+                    const optionalInRequest = requestColumns.filter(col => !fixedColumns.includes(col));
+                    if (!optionalInRequest.length) throw error; // Nothing optional left to drop — a fixed column is broken.
+
+                    const badColumn = extractInvalidColumnName(error);
+                    const toDrop = badColumn && requestColumns.includes(badColumn) ? [badColumn] : optionalInRequest;
+                    toDrop.forEach(col => knownBad.add(col));
+                    requestColumns = requestColumns.filter(col => !toDrop.includes(col));
                     log.audit({
-                        title: 'Invalid search column skipped',
-                        details: `Column "${badColumn}" is invalid on a ${type} search. Verify the field exists, stores a value, and its Applies To/sourcing config covers this record type. Skipping it for this run — dependent amounts will read as 0. Original error: ${error.message}`
+                        title: 'Invalid search column(s) skipped',
+                        details: `${toDrop.length === 1 ? `Column "${toDrop[0]}"` : `Columns [${toDrop.join(', ')}] (could not isolate which one NetSuite rejected, so all optional columns were dropped)`} invalid on a ${type} search. Verify the field(s) exist, store a value, and their Applies To/sourcing config covers this record type. Skipping for this run — dependent amounts will read as 0. Original error: ${error.message}`
                     });
                 }
             }
@@ -532,20 +546,19 @@ define(['N/ui/serverWidget', 'N/search', 'N/record', 'N/format', 'N/log'],
             ${message ? `<div style="margin-top:8px;color:#176b2c"><b>${message}</b></div>` : ''}
         </div>`;
 
-        const summary = form.addSublist({ id: PAGE.SUMMARY, type: serverWidget.SublistType.LIST, label: 'Invoices to Create — Select by Customer' });
+        // INLINEEDITOR (not LIST) so every OF amount below is directly editable in the
+        // grid before submit — a search-sourced field that came back 0 (missing/
+        // misconfigured column) can be corrected by hand instead of blocking the invoice.
+        const summary = form.addSublist({ id: PAGE.SUMMARY, type: serverWidget.SublistType.INLINEEDITOR, label: 'Invoices to Create — Select by Customer, Edit Amounts as Needed' });
         summary.addMarkAllButtons();
         summary.addField({ id: PAGE.SELECT, type: serverWidget.FieldType.CHECKBOX, label: 'Create' });
         summary.addField({ id: PAGE.GROUP_KEY, type: serverWidget.FieldType.TEXT, label: 'Group Key' })
             .updateDisplayType({ displayType: serverWidget.FieldDisplayType.HIDDEN });
-        summary.addField({ id: 'custpage_customer_name', type: serverWidget.FieldType.TEXT, label: 'Customer' });
-        summary.addField({ id: 'custpage_of1', type: serverWidget.FieldType.CURRENCY, label: 'OF1' });
-        summary.addField({ id: 'custpage_of2', type: serverWidget.FieldType.CURRENCY, label: 'OF2' });
-        summary.addField({ id: 'custpage_of3', type: serverWidget.FieldType.CURRENCY, label: 'OF3' });
-        summary.addField({ id: 'custpage_of5', type: serverWidget.FieldType.CURRENCY, label: 'OF5' });
-        summary.addField({ id: 'custpage_of6', type: serverWidget.FieldType.CURRENCY, label: 'OF6' });
-        summary.addField({ id: 'custpage_of7', type: serverWidget.FieldType.CURRENCY, label: 'OF7' });
-        summary.addField({ id: 'custpage_of8', type: serverWidget.FieldType.CURRENCY, label: 'OF8' });
-        summary.addField({ id: 'custpage_group_total', type: serverWidget.FieldType.CURRENCY, label: 'Invoice Total' });
+        summary.addField({ id: 'custpage_customer_name', type: serverWidget.FieldType.TEXT, label: 'Customer' })
+            .updateDisplayType({ displayType: serverWidget.FieldDisplayType.DISABLED });
+        CHARGE_CODES.forEach(code => summary.addField({ id: chargeFieldId(code), type: serverWidget.FieldType.CURRENCY, label: code }));
+        summary.addField({ id: 'custpage_group_total', type: serverWidget.FieldType.CURRENCY, label: 'Invoice Total' })
+            .updateDisplayType({ displayType: serverWidget.FieldDisplayType.DISABLED });
 
         groups.forEach((group, line) => {
             const byCode = group.charges.reduce((out, row) => {
@@ -554,7 +567,7 @@ define(['N/ui/serverWidget', 'N/search', 'N/record', 'N/format', 'N/log'],
             }, {});
             addValue(summary, PAGE.GROUP_KEY, line, group.key);
             addValue(summary, 'custpage_customer_name', line, group.customerText);
-            ['OF1', 'OF2', 'OF3', 'OF5', 'OF6', 'OF7', 'OF8'].forEach(code => addValue(summary, `custpage_${code.toLowerCase()}`, line, (byCode[code] || 0).toFixed(2)));
+            CHARGE_CODES.forEach(code => addValue(summary, chargeFieldId(code), line, (byCode[code] || 0).toFixed(2)));
             addValue(summary, 'custpage_group_total', line, group.total.toFixed(2));
         });
 
@@ -590,7 +603,35 @@ define(['N/ui/serverWidget', 'N/search', 'N/record', 'N/format', 'N/log'],
         return selected;
     }
 
-    function createInvoice(group, period) {
+    /**
+     * Reads the (possibly staff-edited) per-code amounts back out of the summary
+     * grid, keyed by group key. The page is pre-filled with the calculated
+     * defaults, but since the grid is an INLINEEDITOR, anything typed over those
+     * defaults before submit is what actually gets invoiced — this is what lets a
+     * $0 caused by a bad search column get corrected by hand instead of shipping
+     * a wrong invoice.
+     */
+    function readSummaryOverrides(request) {
+        const overrides = {};
+        const count = request.getLineCount({ group: PAGE.SUMMARY });
+        for (let line = 0; line < count; line += 1) {
+            const key = String(request.getSublistValue({ group: PAGE.SUMMARY, name: PAGE.GROUP_KEY, line }));
+            overrides[key] = CHARGE_CODES.reduce((out, code) => {
+                out[code] = money(request.getSublistValue({ group: PAGE.SUMMARY, name: chargeFieldId(code), line }));
+                return out;
+            }, {});
+        }
+        return overrides;
+    }
+
+    function defaultTotals(group) {
+        return group.charges.reduce((out, row) => {
+            out[row.code] = money(number(out[row.code]) + row.amount);
+            return out;
+        }, {});
+    }
+
+    function createInvoice(group, period, totals) {
         const invoice = record.create({ type: record.Type.INVOICE, isDynamic: false });
         if (CONFIG.INVOICE_FORM_ID) invoice.setValue({ fieldId: 'customform', value: CONFIG.INVOICE_FORM_ID });
         if (group.subsidiaryId) invoice.setValue({ fieldId: 'subsidiary', value: Number(group.subsidiaryId) });
@@ -604,12 +645,10 @@ define(['N/ui/serverWidget', 'N/search', 'N/record', 'N/format', 'N/log'],
             }
         }
 
-        const totals = group.charges.reduce((out, row) => {
-            out[row.code] = money(number(out[row.code]) + row.amount);
-            return out;
-        }, {});
-        Object.keys(totals).sort().forEach((code, line) => {
-            if (code === 'OF4' || !totals[code]) return;
+        // Filter before indexing: totals may carry a $0 entry for every charge code
+        // (the summary grid submits all of them), and setting sublist values at a
+        // skipped line index would leave gaps in the invoice's item sublist.
+        Object.keys(totals).filter(code => code !== 'OF4' && totals[code]).sort().forEach((code, line) => {
             invoice.setSublistValue({ sublistId: 'item', fieldId: 'item', line, value: CONFIG.INVOICE_ITEMS[code] });
             invoice.setSublistValue({ sublistId: 'item', fieldId: 'quantity', line, value: 1 });
             invoice.setSublistValue({ sublistId: 'item', fieldId: 'rate', line, value: totals[code] });
@@ -650,13 +689,15 @@ define(['N/ui/serverWidget', 'N/search', 'N/record', 'N/format', 'N/log'],
         if (context.request.method === 'POST') {
             const selected = selectedGroupKeys(context.request);
             if (selected.size) {
+                const overrides = readSummaryOverrides(context.request);
                 const created = [];
                 selected.forEach(key => {
                     const group = model.groups[key];
                     if (!group) throw new Error(`Customer group ${key} is no longer eligible. Refresh and review again.`);
-                    const invoiceId = createInvoice(group, period);
+                    const totals = overrides[key] || defaultTotals(group);
+                    const invoiceId = createInvoice(group, period, totals);
                     markSourceTransactions(group, invoiceId);
-                    created.push({ invoiceId, amount: group.total });
+                    created.push({ invoiceId, amount: Object.values(totals).reduce((sum, value) => sum + number(value), 0) });
                 });
                 message = `Created ${created.length} open invoice(s), total ${money(created.reduce((sum, row) => sum + row.amount, 0)).toFixed(2)}.`;
                 model = collectModel(period, customerId);
@@ -670,7 +711,7 @@ define(['N/ui/serverWidget', 'N/search', 'N/record', 'N/format', 'N/log'],
             .filter(entry => entry.columns.length)
             .map(entry => `${entry.type}: ${entry.columns.join(', ')}`);
         if (invalidColumnNotes.length) {
-            message = `Warning: these fields are invalid search columns on the noted transaction type right now — likely missing, or Applies To/sourcing config doesn't cover that type — so they were skipped this run (amounts sourced from them read as 0; if the skipped field is "${CONFIG.SOURCE_INVOICE_FIELD}", duplicate-invoice protection is also OFF). Fix them in NetSuite, then re-run. ${invalidColumnNotes.join(' | ')} ${message}`;
+            message = `Warning: these fields are invalid search columns on the noted transaction type right now — likely missing, or Applies To/sourcing config doesn't cover that type — so they were skipped this run (amounts sourced from them read as 0 below; edit the OF columns in the grid directly if you need to correct them before creating invoices; if the skipped field is "${CONFIG.SOURCE_INVOICE_FIELD}", duplicate-invoice protection is also OFF). Fix the field(s) in NetSuite, then re-run. ${invalidColumnNotes.join(' | ')} ${message}`;
         }
 
         context.response.writePage(buildForm(period, customerId, model, message));
