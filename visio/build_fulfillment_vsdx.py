@@ -101,9 +101,9 @@ for i, name in enumerate(LANES):
 # ---- steps
 TH = 3.0
 shape(cx(0), cy(0), 1.9, 0.9, geom_round(1.9, 0.9, 0.4), "Trigger\nSupply Required By Date\n<= Today", "#FFFFFF", "#1F4E79", size=0.08, bold=True)
-box(1, 0, "1. Automated Lot Assignment (every 2 hrs)\nRuns on order lines where Supply Required By Date <= Today (not a fixed number of days before Customer Wanted Date).\nPriority: DPAS > Order Priority > earliest Customer Wanted Date > Spec Count > transaction/order sequence.\nLot selection: customer designation / spec requirements, then FEFO (earliest expiration).\nOccurs before commitment and warehouse release.", h=TH)
+box(1, 0, "1. Automated Lot Assignment (every 2 hrs)\nRuns on order lines where Supply Required By Date (SRD) <= Today. SRD is set at the subsidiary level via a custom field on the subsidiary record (US: 14 days prior to Customer Wanted Date).\nPriority: DPAS > Order Priority > earliest Customer Wanted Date > Spec Count > transaction/order sequence.\nLot selection: customer designation / spec requirements, then FEFO (earliest expiration).\nOccurs before commitment and warehouse release.", h=TH)
 box(2, 0, "2. Inventory Allocation & Commitment (every hour)\nRuns for eligible SO/TO demand.\nLot-numbered items: lot must be assigned in Step 1 first, so committed qty = lot-assigned qty.\nNon-lot items follow the configured allocation rules.", h=TH)
-box(3, 0, "3. Wave Release (every 2 hrs)\nReleases committed orders to WMS when Customer Wanted Date is within 8 days (Subsidiary 4) or 4 days (all other subsidiaries).\nMust be committed, lots assigned, and pass hold / release / status / credit criteria.\nShip Complete = True: also needs Complete to Release = True.\nShip Complete = False: eligible committed qty proceeds without waiting for the full order.\nManual wave generation also available.", h=TH)
+box(3, 0, "3. Wave Release (every 2 hrs)\nReleases committed orders to WMS when Customer Wanted Date is within 8 days (Subsidiary 4 = US) or 4 days (all other subsidiaries).\nMust be committed, lots assigned, and pass hold / release / status / credit criteria.\nShip Complete = True: also needs Complete to Release = True.\nShip Complete = False: eligible committed qty proceeds without waiting for the full order.\nManual wave generation also available.", h=TH)
 box(4, 1, "4. Pick Order (NetSuite WMS)\nIndividual device login; Picker captured (prints on Packing Slip); shipment/item images captured", "#E2F0D9", "#548235")
 box(5, 1, "5. Pack Order\nShipHawk Smart Pack\nSame operator who picked", "#E2F0D9", "#548235")
 box(6, 2, "6. Quality Control (Q/C)\nReview packed shipment and WMS pick images; confirm ready for carrier booking", "#FFF2CC", "#BF8F00")
@@ -114,7 +114,7 @@ box(8, 2, "Unsupported Carrier\nProcess as External Shipment in ShipHawk; book o
 box(8, 3, "Supported Carrier\nProcess and mark shipment as Shipped in ShipHawk", "#E4DFEC", "#7030A0")
 box(9, 3, "ShipHawk writes shipment info back to NetSuite\n(incl. shipper email / user ID)", "#E4DFEC", "#7030A0")
 box(10, 0, "8. Complete Fulfillment\nItem Fulfillment = Shipped; Picker = WMS picker; Q/C = shipping user with signature; Packing Slip printable", "#DEEAF6", "#1F4E79")
-box(11, 0, "9. Print Final Shipping Docs\nPacking Slip\nBOL (CRM)\nCommercial Invoice", "#DEEAF6", "#1F4E79")
+box(11, 0, "9. Print Final Shipping Docs\nPacking Slip\nBOL (CMR)\nCommercial Invoice", "#DEEAF6", "#1F4E79")
 
 # ---- connectors
 arrow([(cx(0) + 0.95, cy(0)), (cx(1) - BW / 2, cy(0))])
@@ -141,7 +141,7 @@ shape(LABEL_W / 2, FY, LABEL_W, FOOT_H, geom_rect(LABEL_W, FOOT_H), "Example Tim
 FW = (PW - LABEL_W - 0.6) / 3
 ex = [("Lot Assignment", "Triggered by the line's Supply Required By Date, not directly by Oct 15. If Supply Required By Date = Oct 8, the line becomes eligible Oct 8 and is evaluated on the next 2-hour run."),
       ("Allocation / Commitment", "After the lot is assigned and the line meets allocation criteria, inventory is committed on the next hourly run."),
-      ("Wave Release", "Subsidiary 4: eligible from Oct 7 (within 8 days of Oct 15).\nOther subsidiaries: eligible from Oct 11 (within 4 days).\nReleased on the next 2-hour wave run once all other requirements are met.")]
+      ("Wave Release", "Subsidiary 4 (US): eligible from Oct 7 (within 8 days of Oct 15).\nOther subsidiaries: eligible from Oct 11 (within 4 days).\nReleased on the next 2-hour wave run once all other requirements are met.")]
 for i, (h_, t_) in enumerate(ex):
     shape(LABEL_W + 0.2 + FW / 2 + i * (FW + 0.1), FY + 0.2, FW, FOOT_H - 1.0, geom_round(FW, FOOT_H - 1.0), h_ + "\n" + t_, "#FFFFFF", "#7F7F7F", size=0.09)
 shape(PW / 2, 0.22, PW - 2, 0.3, geom_rect(PW - 2, 0.3), "Overall: Supply Required By Date reached > Lot Assignment (2 hrs) > Commitment (1 hr) > Customer Wanted Date release window reached > Wave Release (2 hrs) > WMS Picking", "#FFFFFF", size=0.09, bold=True, nofill=True, nolines=True)
