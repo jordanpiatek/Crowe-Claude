@@ -2,16 +2,18 @@
 import zipfile
 from xml.sax.saxutils import escape
 
-LANE_H, TITLE_H, LABEL_W = 2.3, 0.9, 1.6
+LANE_HS, TITLE_H, LABEL_W, FOOT_H = [3.4, 2.3, 2.3, 2.3], 0.9, 1.6, 2.5
+LANE_H = 2.3
 LANES = ["NetSuite", "Warehouse Operator 1\n(Picker / Packer)", "Warehouse Operator 2\n(Q/C / Shipper)", "ShipHawk"]
 LANE_FILL = ["#EAF2FB", "#F3F8EC", "#FDF5E6", "#F1ECF8"]
-NCOL, COLW, X0 = 11, 2.45, LABEL_W + 1.5
+NCOL, COLW = 11, 2.85
+X0 = LABEL_W + 1.5 + COLW
 PW = X0 + (NCOL - 1) * COLW + 1.9
-PH = TITLE_H + LANE_H * len(LANES)
-BW, BH = 2.05, 1.5
+PH = TITLE_H + sum(LANE_HS) + FOOT_H
+BW, BH = 2.4, 1.5
 
 def cx(c): return X0 + (c - 1) * COLW
-def cy(l): return PH - TITLE_H - LANE_H * (l + 0.5)
+def cy(l): return PH - TITLE_H - sum(LANE_HS[:l]) - LANE_HS[l] / 2
 
 shapes, sid = [], [0]
 
@@ -63,8 +65,8 @@ def shape(x, y, w, h, geom, txt, fill, line="#1F4E79", size=0.1, color="#000000"
         f"{cell('TxtWidth',w-0.1)}{cell('TxtHeight',h)}{cell('TxtPinX',w/2)}{cell('TxtPinY',h/2)}{cell('TxtLocPinX',(w-0.1)/2)}{cell('TxtLocPinY',h/2)}"
         f"{cell('VerticalAlign',1)}{geom}{text_sec(txt,size,color,bold)}</Shape>")
 
-def box(c, l, txt, fill="#FFFFFF", line="#1F4E79"):
-    shape(cx(c), cy(l), BW, BH, geom_round(BW, BH), txt, fill, line, size=0.085)
+def box(c, l, txt, fill="#FFFFFF", line="#1F4E79", h=BH):
+    shape(cx(c), cy(l), BW, h, geom_round(BW, h), txt, fill, line, size=0.08)
 
 def label(x, y, txt, w=1.5, h=0.3):
     shape(x, y, w, h, geom_rect(w, h), txt, "#FFFFFF", size=0.085, color="#595959", nofill=True, nolines=True)
@@ -92,13 +94,16 @@ shape(PW / 2, PH - TITLE_H / 2, PW, TITLE_H, geom_rect(PW, TITLE_H),
       "Order Fulfillment Process Flow  |  NetSuite WMS + ShipHawk", "#1F4E79", "#1F4E79", size=0.2, color="#FFFFFF", bold=True)
 for i, name in enumerate(LANES):
     y = cy(i)
-    shape(PW / 2, y, PW, LANE_H, geom_rect(PW, LANE_H), "", LANE_FILL[i], "#7F7F7F", lw=0.01)
-    shape(LABEL_W / 2, y, LABEL_W, LANE_H, geom_rect(LABEL_W, LANE_H), name, "#D9D9D9", "#7F7F7F", size=0.12, bold=True, lw=0.01)
+    LH = LANE_HS[i]
+    shape(PW / 2, y, PW, LH, geom_rect(PW, LH), "", LANE_FILL[i], "#7F7F7F", lw=0.01)
+    shape(LABEL_W / 2, y, LABEL_W, LH, geom_rect(LABEL_W, LH), name, "#D9D9D9", "#7F7F7F", size=0.12, bold=True, lw=0.01)
 
 # ---- steps
-box(1, 0, "1. Lot Assignment\nLot assigned to the Sales Order per inventory allocation rules")
-box(2, 0, "2. Inventory Commitment\nInventory committed to the Sales Order")
-box(3, 0, "3. Wave Release\nAutomatic wave release\nor Manual wave generation")
+TH = 3.0
+shape(cx(0), cy(0), 1.9, 0.9, geom_round(1.9, 0.9, 0.4), "Trigger\nSupply Required By Date\n<= Today", "#FFFFFF", "#1F4E79", size=0.08, bold=True)
+box(1, 0, "1. Automated Lot Assignment (every 2 hrs)\nRuns on order lines where Supply Required By Date <= Today (not a fixed number of days before Customer Wanted Date).\nPriority: DPAS > Order Priority > earliest Customer Wanted Date > Spec Count > transaction/order sequence.\nLot selection: customer designation / spec requirements, then FEFO (earliest expiration).\nOccurs before commitment and warehouse release.", h=TH)
+box(2, 0, "2. Inventory Allocation & Commitment (every hour)\nRuns for eligible SO/TO demand.\nLot-numbered items: lot must be assigned in Step 1 first, so committed qty = lot-assigned qty.\nNon-lot items follow the configured allocation rules.", h=TH)
+box(3, 0, "3. Wave Release (every 2 hrs)\nReleases committed orders to WMS when Customer Wanted Date is within 8 days (Subsidiary 4) or 4 days (all other subsidiaries).\nMust be committed, lots assigned, and pass hold / release / status / credit criteria.\nShip Complete = True: also needs Complete to Release = True.\nShip Complete = False: eligible committed qty proceeds without waiting for the full order.\nManual wave generation also available.", h=TH)
 box(4, 1, "4. Pick Order (NetSuite WMS)\nIndividual device login; Picker captured (prints on Packing Slip); shipment/item images captured", "#E2F0D9", "#548235")
 box(5, 1, "5. Pack Order\nShipHawk Smart Pack\nSame operator who picked", "#E2F0D9", "#548235")
 box(6, 2, "6. Quality Control (Q/C)\nReview packed shipment and WMS pick images; confirm ready for carrier booking", "#FFF2CC", "#BF8F00")
@@ -112,6 +117,7 @@ box(10, 0, "8. Complete Fulfillment\nItem Fulfillment = Shipped; Picker = WMS pi
 box(11, 0, "9. Print Final Shipping Docs\nPacking Slip\nBOL (CRM)\nCommercial Invoice", "#DEEAF6", "#1F4E79")
 
 # ---- connectors
+arrow([(cx(0) + 0.95, cy(0)), (cx(1) - BW / 2, cy(0))])
 arrow(elbow(0, 0, cx(1), cy(0), cx(2), cy(0)))
 arrow(elbow(0, 0, cx(2), cy(0), cx(3), cy(0)))
 arrow(elbow(0, 0, cx(3), cy(0), cx(4), cy(1)))
@@ -127,6 +133,18 @@ arrow(elbow(0, 0, cx(8), cy(2), cx(9), cy(3)))
 arrow(elbow(0, 0, cx(8), cy(3), cx(9), cy(3)))
 arrow(elbow(0, 0, cx(9), cy(3), cx(10), cy(0)))
 arrow(elbow(0, 0, cx(10), cy(0), cx(11), cy(0)))
+
+# ---- footer: example timeline
+FY = FOOT_H / 2
+shape(PW / 2, FY, PW, FOOT_H, geom_rect(PW, FOOT_H), "", "#FFFFFF", "#7F7F7F", lw=0.01)
+shape(LABEL_W / 2, FY, LABEL_W, FOOT_H, geom_rect(LABEL_W, FOOT_H), "Example Timeline\n(Customer Wanted Date = Oct 15)", "#D9D9D9", "#7F7F7F", size=0.12, bold=True, lw=0.01)
+FW = (PW - LABEL_W - 0.6) / 3
+ex = [("Lot Assignment", "Triggered by the line's Supply Required By Date, not directly by Oct 15. If Supply Required By Date = Oct 8, the line becomes eligible Oct 8 and is evaluated on the next 2-hour run."),
+      ("Allocation / Commitment", "After the lot is assigned and the line meets allocation criteria, inventory is committed on the next hourly run."),
+      ("Wave Release", "Subsidiary 4: eligible from Oct 7 (within 8 days of Oct 15).\nOther subsidiaries: eligible from Oct 11 (within 4 days).\nReleased on the next 2-hour wave run once all other requirements are met.")]
+for i, (h_, t_) in enumerate(ex):
+    shape(LABEL_W + 0.2 + FW / 2 + i * (FW + 0.1), FY + 0.2, FW, FOOT_H - 1.0, geom_round(FW, FOOT_H - 1.0), h_ + "\n" + t_, "#FFFFFF", "#7F7F7F", size=0.09)
+shape(PW / 2, 0.22, PW - 2, 0.3, geom_rect(PW - 2, 0.3), "Overall: Supply Required By Date reached > Lot Assignment (2 hrs) > Commitment (1 hr) > Customer Wanted Date release window reached > Wave Release (2 hrs) > WMS Picking", "#FFFFFF", size=0.09, bold=True, nofill=True, nolines=True)
 
 # ---- package
 NS = "http://schemas.microsoft.com/office/visio/2012/main"
