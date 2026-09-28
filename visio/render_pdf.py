@@ -29,6 +29,7 @@ for s in ET.fromstring(z.read('visio/pages/page1.xml')).iter('{%s}Shape' % ns['v
         cpl = max(int((w - 0.2) / (size * 0.0075)), 10)
         t = '\n'.join('\n'.join(textwrap.wrap(l, cpl)) or ' ' for l in t.split('\n'))
         ax.text(px, py, t, ha='center', va='center', fontsize=size,
-                color='w' if 'Process Flow' in t else 'k', fontweight='bold' if 'Process Flow' in t else 'normal')
+                color=s.find("v:Section[@N='Character']/v:Row/v:Cell[@N='Color']", ns).get('V'),
+                fontweight='bold' if s.find("v:Section[@N='Character']/v:Row/v:Cell[@N='Style']", ns).get('V') == '1' else 'normal')
 fig.savefig('Fulfillment_Process_Flow.pdf')
 fig.savefig('/tmp/claude-0/prev3.png', dpi=50)
