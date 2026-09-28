@@ -2,19 +2,21 @@
 import zipfile
 from xml.sax.saxutils import escape
 
-LANE_HS, TITLE_H, LABEL_W, FOOT_H = [3.4, 2.3, 3.6, 2.3], 0.9, 1.6, 2.5
-LANE_H = 2.3
-NSF, NSL, SHF, SHL = "#DEEAF6", "#1F4E79", "#E4DFEC", "#7030A0"
-LANES = ["NetSuite\n(system / automated)", "Warehouse Operator 1\n(Picker / Packer)", "Warehouse Operator 2\n(Q/C / Shipper)", "ShipHawk\n(system / automated)"]
-LANE_FILL = ["#EAF2FB", "#F3F8EC", "#FDF5E6", "#F1ECF8"]
-NCOL, COLW = 11, 2.85
-X0 = LABEL_W + 1.5 + COLW
-PW = X0 + (NCOL - 1) * COLW + 1.9
-PH = TITLE_H + sum(LANE_HS) + FOOT_H
-BW, BH = 2.4, 1.5
+TITLE_H, LABEL_W, BAND_H, GAP, STRIP_H = 0.9, 1.6, 3.7, 0.5, 0.6
+LANE_HS = [2.3, 3.9, 2.2, 2.2]
+LANES = ["Warehouse Operator 1\n(Picker / Packer)", "Warehouse Operator 2\n(Q/C / Shipper)", "ShipHawk\n(system)", "NetSuite\n(system)"]
+LANE_FILL = ["#F3F8EC", "#FDF5E6", "#F1ECF8", "#EAF2FB"]
+NSF, NSL, SHF, SHL, OPF, OPL = "#DEEAF6", "#1F4E79", "#E4DFEC", "#7030A0", "#FFF2CC", "#BF8F00"
+BW, BH, COLW = 2.3, 1.7, 2.7
+X0 = LABEL_W + 1.5
+PW = X0 + 7 * COLW + BW / 2 + 0.4
+PH = TITLE_H + BAND_H + GAP + sum(LANE_HS) + STRIP_H
+FS = 0.125  # 9pt
 
 def cx(c): return X0 + (c - 1) * COLW
-def cy(l): return PH - TITLE_H - sum(LANE_HS[:l]) - LANE_HS[l] / 2
+def lane_top(l): return PH - TITLE_H - BAND_H - GAP - sum(LANE_HS[:l])
+def cy(l): return lane_top(l) - LANE_HS[l] / 2
+BAND_Y = PH - TITLE_H - BAND_H / 2
 
 shapes, sid = [], [0]
 
@@ -70,7 +72,7 @@ def box(c, l, txt, fill="#FFFFFF", line="#1F4E79", h=BH):
     shape(cx(c), cy(l), BW, h, geom_round(BW, h), txt, fill, line, size=0.08)
 
 def label(x, y, txt, w=1.5, h=0.3):
-    shape(x, y, w, h, geom_rect(w, h), txt, "#FFFFFF", size=0.085, color="#595959", nofill=True, nolines=True)
+    shape(x, y, w, h, geom_rect(w, h), txt, "#FFFFFF", size=0.115, color="#404040", nofill=True, nolines=True)
 
 def arrow(pts, dash=False):
     """Polyline connector through absolute page points, arrowhead at the end."""
@@ -90,70 +92,77 @@ def elbow(a, b, ax, ay, bx, by):
     m = (x1 + x2) / 2
     return [(x1, ay), (m, ay), (m, by), (x2, by)]
 
-# ---- lanes & title
-shape(PW / 2, PH - TITLE_H / 2, PW, TITLE_H, geom_rect(PW, TITLE_H),
-      "Order Fulfillment Process Flow  |  NetSuite WMS + ShipHawk", "#1F4E79", "#1F4E79", size=0.2, color="#FFFFFF", bold=True)
-for i, name in enumerate(LANES):
-    y = cy(i)
-    LH = LANE_HS[i]
-    shape(PW / 2, y, PW, LH, geom_rect(PW, LH), "", LANE_FILL[i], "#7F7F7F", lw=0.01)
-    shape(LABEL_W / 2, y, LABEL_W, LH, geom_rect(LABEL_W, LH), name, "#D9D9D9", "#7F7F7F", size=0.12, bold=True, lw=0.01)
 
-# ---- steps
-TH = 3.0
-shape(cx(0), cy(0), 1.9, 0.9, geom_round(1.9, 0.9, 0.4), "Trigger\nSupply Required By Date\n<= Today", "#FFFFFF", "#1F4E79", size=0.08, bold=True)
-box(1, 0, "1. Automated Lot Assignment (every 2 hrs)\nRuns on order lines where Supply Required By Date (SRD) <= Today. SRD is set at the subsidiary level via a custom field on the subsidiary record (US: 14 days prior to Customer Wanted Date).\nPriority: DPAS > Order Priority > earliest Customer Wanted Date > Spec Count > transaction/order sequence.\nLot selection: customer designation / spec requirements, then FEFO (earliest expiration).\nOccurs before commitment and warehouse release.", h=TH, fill=NSF, line=NSL)
-box(2, 0, "2. Inventory Allocation & Commitment (every hour)\nRuns for eligible SO/TO demand.\nLot-numbered items: lot must be assigned in Step 1 first, so committed qty = lot-assigned qty.\nNon-lot items follow the configured allocation rules.", h=TH, fill=NSF, line=NSL)
-box(3, 0, "3. Wave Release (every 2 hrs)\nReleases committed orders to WMS when Customer Wanted Date is within 8 days (Subsidiary 4 = US) or 4 days (all other subsidiaries).\nMust be committed, lots assigned, and pass hold / release / status / credit criteria.\nShip Complete = True: also needs Complete to Release = True.\nShip Complete = False: eligible committed qty proceeds without waiting for the full order.\nManual wave generation also available.", h=TH, fill=NSF, line=NSL)
-box_y = lambda c, y, txt, fill, line, h=BH: shape(cx(c), y, BW, h, geom_round(BW, h), txt, fill, line, size=0.08)
-YS, YU = cy(2) + 0.95, cy(2) - 0.95
-box(4, 1, "4. Pick Order  [NetSuite WMS]\nOperator 1 picks using individual device login; Picker captured (prints on Packing Slip header); shipment/item images captured and associated with the fulfillment", NSF, NSL)
-shape(cx(4.5), cy(3), 1.9, 1.1, geom_round(1.9, 1.1), "Order syncs\nNetSuite > ShipHawk", SHF, SHL, size=0.08)
-box(5, 1, "5. Pack Order  [ShipHawk Smart Pack]\nOperator 1 (same operator who picked) packs the order in ShipHawk", SHF, SHL)
-box(6, 2, "6. Quality Control (Q/C)\nOperator 2 reviews packed shipment and WMS pick images; confirms ready for carrier booking", "#FFF2CC", "#BF8F00")
-DW, DH = 2.1, 1.4
-shape(cx(7), cy(2), DW, DH, geom_diamond(DW, DH), "7. Book & Ship\nOperator 2\nCarrier supported by ShipHawk?", "#FFF2CC", "#BF8F00", size=0.085)
-box_y(8, YS, "Supported Carrier  [ShipHawk]\nOperator 2 processes and marks shipment as Shipped directly in ShipHawk", SHF, SHL)
-box_y(8, YU, "Unsupported Carrier  [ShipHawk]\nOperator 2 processes as External Shipment in ShipHawk, books on external carrier site, and updates ShipHawk", SHF, SHL)
-box(9, 3, "ShipHawk writes shipment info back to NetSuite\n(incl. shipper email / user ID)", SHF, SHL)
-box(10, 0, "8. Complete Fulfillment  [NetSuite]\nItem Fulfillment = Shipped; Picker = WMS picker; Q/C = shipping user with signature; Packing Slip printable", NSF, NSL)
-box(11, 0, "9. Print Final Shipping Docs  [NetSuite]\nPacking Slip\nBOL (CMR)\nCommercial Invoice", NSF, NSL)
+def box(c, y, txt, fill, line, w=BW, h=BH, x=None):
+    shape(cx(c) if x is None else x, y, w, h, geom_round(w, h), txt, fill, line, size=FS)
 
-# ---- legend (title bar)
-for i, (nm, f_, l_) in enumerate([("NetSuite / NetSuite WMS", NSF, NSL), ("ShipHawk", SHF, SHL), ("Operator 2 review", "#FFF2CC", "#BF8F00")]):
-    lx = PW - 12 + i * 4
+# ---- title, band, lanes
+shape(PW / 2, PH - TITLE_H / 2, PW, TITLE_H, geom_rect(PW, TITLE_H), "", "#1F4E79", "#1F4E79")
+shape((PW - 10.5) / 2, PH - TITLE_H / 2, PW - 10.5, TITLE_H, geom_rect(PW - 10.5, TITLE_H),
+      "Order Fulfillment Process Flow  |  NetSuite WMS + ShipHawk", "#1F4E79", size=0.26, color="#FFFFFF", bold=True, nofill=True, nolines=True)
+for i, (nm, f_, l_) in enumerate([("NetSuite / NetSuite WMS", NSF, NSL), ("ShipHawk", SHF, SHL), ("Operator 2 review", OPF, OPL)]):
+    lx = PW - 9.9 + i * 3.4
     shape(lx, PH - TITLE_H / 2, 0.3, 0.3, geom_rect(0.3, 0.3), "", f_, l_)
-    shape(lx + 1.5, PH - TITLE_H / 2, 2.6, 0.3, geom_rect(2.6, 0.3), nm, "#FFFFFF", size=0.09, color="#FFFFFF", nofill=True, nolines=True)
+    shape(lx + 1.5, PH - TITLE_H / 2, 2.6, 0.3, geom_rect(2.6, 0.3), nm, "#FFFFFF", size=0.12, color="#FFFFFF", nofill=True, nolines=True)
+
+shape(PW / 2, BAND_Y, PW, BAND_H, geom_rect(PW, BAND_H), "", "#EAF2FB", "#7F7F7F", lw=0.01)
+shape(LABEL_W / 2, BAND_Y, LABEL_W, BAND_H, geom_rect(LABEL_W, BAND_H),
+      "Order-to-Release\n(NetSuite scheduled scripts)", "#D9D9D9", "#7F7F7F", size=0.13, bold=True, lw=0.01)
+for i, name in enumerate(LANES):
+    shape(PW / 2, cy(i), PW, LANE_HS[i], geom_rect(PW, LANE_HS[i]), "", LANE_FILL[i], "#7F7F7F", lw=0.01)
+    shape(LABEL_W / 2, cy(i), LABEL_W, LANE_HS[i], geom_rect(LABEL_W, LANE_HS[i]), name, "#D9D9D9", "#7F7F7F", size=0.115, bold=True, lw=0.01)
+
+# ---- band: steps 1-3 + example timeline
+TW, TH_, AH = 3.7, 3.2, 0.9
+tx0 = LABEL_W + 0.3
+shape(tx0 + 0.95, BAND_Y, 1.9, AH, geom_round(1.9, AH, 0.4), "Trigger:\nSupply Required By Date <= Today", "#FFFFFF", NSL, size=0.11, bold=True)
+x1 = tx0 + 1.9 + 0.45 + TW / 2
+x2, x3 = x1 + TW + 0.45, x1 + 2 * (TW + 0.45)
+box(0, BAND_Y, "1. Automated Lot Assignment  (every 2 hrs)\nRuns on order lines where Supply Required By Date (SRD) <= Today. SRD is set at the subsidiary level via a custom field on the subsidiary record (US: 14 days prior to Customer Wanted Date).\nPriority: DPAS > Order Priority > earliest Customer Wanted Date > Spec Count > transaction/order sequence.\nLot selection: customer designation / spec requirements, then FEFO (earliest expiration).\nOccurs before commitment and warehouse release.", NSF, NSL, w=TW, h=TH_, x=x1)
+box(0, BAND_Y, "2. Inventory Allocation & Commitment  (every hour)\nRuns for eligible SO/TO demand.\nLot-numbered items: lot must be assigned in Step 1 first, so committed qty = lot-assigned qty.\nNon-lot items follow the configured allocation rules.", NSF, NSL, w=TW, h=TH_, x=x2)
+box(0, BAND_Y, "3. Wave Release  (every 2 hrs)\nReleases committed orders to WMS when Customer Wanted Date is within 8 days (Subsidiary 4 = US) or 4 days (all other subsidiaries).\nMust be committed, lots assigned, and pass hold / release / status / credit criteria.\nShip Complete = True: also needs Complete to Release = True.\nShip Complete = False: eligible committed qty proceeds without waiting for the full order.\nManual wave generation is also available.", NSF, NSL, w=TW, h=TH_, x=x3)
+ex_l = x3 + TW / 2 + 0.45; ex_w = PW - 0.3 - ex_l
+box(0, BAND_Y, "Example: Customer Wanted Date = Oct 15\n\nLot Assignment: triggered by the line's Supply Required By Date, not directly by Oct 15. If SRD = Oct 8, eligible Oct 8, evaluated on the next 2-hr run.\n\nCommitment: after lot assignment and allocation criteria are met, next hourly run.\n\nWave Release: Subsidiary 4 (US) eligible from Oct 7 (8 days); other subsidiaries from Oct 11 (4 days). Released on next 2-hr wave run once all other requirements are met.", "#FFFFFF", "#7F7F7F", w=ex_w, h=TH_, x=ex_l + ex_w / 2)
+arrow([(tx0 + 1.9, BAND_Y), (x1 - TW / 2, BAND_Y)])
+arrow([(x1 + TW / 2, BAND_Y), (x2 - TW / 2, BAND_Y)])
+arrow([(x2 + TW / 2, BAND_Y), (x3 - TW / 2, BAND_Y)])
+
+# ---- swimlane steps
+Y1, Y2, Y3, Y4 = cy(0), cy(1), cy(2), cy(3)
+YS, YU = Y2 + 1.0, Y2 - 1.0
+box(1, Y1, "4. Pick Order  [NetSuite WMS]\nOperator 1 picks using individual device login. Picker captured (prints on Packing Slip header). Shipment/item images captured and associated with the fulfillment.", NSF, NSL)
+box(2, Y1, "5. Pack Order  [ShipHawk Smart Pack]\nOperator 1 (same operator who picked) packs the order in ShipHawk.", SHF, SHL)
+box(0, Y3, "Order syncs\nNetSuite > ShipHawk", SHF, SHL, w=1.7, h=1.0, x=(cx(1) + cx(2)) / 2)
+box(3, Y2, "6. Quality Control (Q/C)\nOperator 2 reviews packed shipment and WMS pick images; confirms ready for carrier booking.", OPF, OPL)
+DW, DH = 2.3, 1.7
+shape(cx(4), Y2, DW, DH, geom_diamond(DW, DH), "7. Book & Ship\nOperator 2\nCarrier supported by ShipHawk?", OPF, OPL, size=FS)
+box(5, YS, "Supported Carrier  [ShipHawk]\nOperator 2 processes and marks the shipment as Shipped directly in ShipHawk.", SHF, SHL)
+box(5, YU, "Unsupported Carrier  [ShipHawk]\nOperator 2 processes as External Shipment in ShipHawk, books on the external carrier site, and updates ShipHawk.", SHF, SHL)
+box(6, Y3, "ShipHawk writes shipment info back to NetSuite (incl. shipper email / user ID)", SHF, SHL)
+box(7, Y4, "8. Complete Fulfillment  [NetSuite]\nItem Fulfillment = Shipped. Picker = WMS picker; Q/C = shipping user with signature. Packing Slip can be printed.", NSF, NSL)
+box(8, Y4, "9. Print Final Shipping Docs  [NetSuite]\nPacking Slip\nBOL (CMR)\nCommercial Invoice", NSF, NSL)
 
 # ---- connectors
-arrow([(cx(0) + 0.95, cy(0)), (cx(1) - BW / 2, cy(0))])
-arrow(elbow(0, 0, cx(1), cy(0), cx(2), cy(0)))
-arrow(elbow(0, 0, cx(2), cy(0), cx(3), cy(0)))
-arrow(elbow(0, 0, cx(3), cy(0), cx(4), cy(1)))
-arrow([(cx(4), cy(1) - BH / 2), (cx(4), cy(3)), (cx(4.5) - 0.95, cy(3))])
-arrow([(cx(4.5) + 0.95, cy(3)), (cx(5), cy(3)), (cx(5), cy(1) - BH / 2)])
-arrow(elbow(0, 0, cx(5), cy(1), cx(6), cy(2)))
-arrow([(cx(6) + BW / 2, cy(2)), (cx(7) - DW / 2, cy(2))])
-arrow([(cx(7), cy(2) + DH / 2), (cx(7), YS), (cx(8) - BW / 2, YS)])
-label(cx(7) + 0.3, cy(2) + DH / 2 + 0.2, "Yes", w=0.4, h=0.25)
-arrow([(cx(7), cy(2) - DH / 2), (cx(7), YU), (cx(8) - BW / 2, YU)])
-label(cx(7) + 0.3, cy(2) - DH / 2 - 0.2, "No", w=0.4, h=0.25)
-arrow(elbow(0, 0, cx(8), YS, cx(9), cy(3)))
-arrow(elbow(0, 0, cx(8), YU, cx(9), cy(3)))
-arrow(elbow(0, 0, cx(9), cy(3), cx(10), cy(0)))
-arrow(elbow(0, 0, cx(10), cy(0), cx(11), cy(0)))
+gy = PH - TITLE_H - BAND_H - GAP / 2
+arrow([(x3, BAND_Y - TH_ / 2), (x3, gy), (cx(1), gy), (cx(1), Y1 + BH / 2)])
+label(cx(1) + 2.6, gy + 0.18, "Released to WMS for picking", w=3.0, h=0.28)
+arrow(elbow(0, 0, cx(1), Y1, cx(2), Y1))
+arrow([(cx(1), Y1 - BH / 2), (cx(1), Y3), (cx(1.5) - 0.85, Y3)])
+arrow([(cx(1.5) + 0.85, Y3), (cx(2), Y3), (cx(2), Y1 - BH / 2)])
+arrow(elbow(0, 0, cx(2), Y1, cx(3), Y2))
+arrow([(cx(3) + BW / 2, Y2), (cx(4) - DW / 2, Y2)])
+arrow([(cx(4), Y2 + DH / 2), (cx(4), YS), (cx(5) - BW / 2, YS)])
+label(cx(4) + 0.35, Y2 + DH / 2 + 0.2, "Yes", w=0.5, h=0.28)
+arrow([(cx(4), Y2 - DH / 2), (cx(4), YU), (cx(5) - BW / 2, YU)])
+label(cx(4) + 0.35, Y2 - DH / 2 - 0.2, "No", w=0.5, h=0.28)
+arrow(elbow(0, 0, cx(5), YS, cx(6), Y3))
+arrow(elbow(0, 0, cx(5), YU, cx(6), Y3))
+arrow(elbow(0, 0, cx(6), Y3, cx(7), Y4))
+arrow(elbow(0, 0, cx(7), Y4, cx(8), Y4))
 
-# ---- footer: example timeline
-FY = FOOT_H / 2
-shape(PW / 2, FY, PW, FOOT_H, geom_rect(PW, FOOT_H), "", "#FFFFFF", "#7F7F7F", lw=0.01)
-shape(LABEL_W / 2, FY, LABEL_W, FOOT_H, geom_rect(LABEL_W, FOOT_H), "Example Timeline\n(Customer Wanted Date = Oct 15)", "#D9D9D9", "#7F7F7F", size=0.12, bold=True, lw=0.01)
-FW = (PW - LABEL_W - 0.6) / 3
-ex = [("Lot Assignment", "Triggered by the line's Supply Required By Date, not directly by Oct 15. If Supply Required By Date = Oct 8, the line becomes eligible Oct 8 and is evaluated on the next 2-hour run."),
-      ("Allocation / Commitment", "After the lot is assigned and the line meets allocation criteria, inventory is committed on the next hourly run."),
-      ("Wave Release", "Subsidiary 4 (US): eligible from Oct 7 (within 8 days of Oct 15).\nOther subsidiaries: eligible from Oct 11 (within 4 days).\nReleased on the next 2-hour wave run once all other requirements are met.")]
-for i, (h_, t_) in enumerate(ex):
-    shape(LABEL_W + 0.2 + FW / 2 + i * (FW + 0.1), FY + 0.2, FW, FOOT_H - 1.0, geom_round(FW, FOOT_H - 1.0), h_ + "\n" + t_, "#FFFFFF", "#7F7F7F", size=0.09)
-shape(PW / 2, 0.22, PW - 2, 0.3, geom_rect(PW - 2, 0.3), "Overall: Supply Required By Date reached > Lot Assignment (2 hrs) > Commitment (1 hr) > Customer Wanted Date release window reached > Wave Release (2 hrs) > WMS Picking", "#FFFFFF", size=0.09, bold=True, nofill=True, nolines=True)
+shape(PW / 2, STRIP_H / 2, PW - 2, 0.35, geom_rect(PW - 2, 0.35),
+      "Overall: Supply Required By Date reached > Lot Assignment (2 hrs) > Commitment (1 hr) > Customer Wanted Date release window reached > Wave Release (2 hrs) > WMS Picking",
+      "#FFFFFF", size=0.125, bold=True, nofill=True, nolines=True)
 
 # ---- package
 NS = "http://schemas.microsoft.com/office/visio/2012/main"
