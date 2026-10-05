@@ -2,8 +2,8 @@
 # Questions starting with "NOTE:" render as italic facilitator notes.
 S = {}
 
-S["1.1"] = ("Kickoff & Objectives", "Mon 10/19 · 8:00 – 8:45", "David, John, Gateworks leadership [[TBC]]",
- "Alignment, not requirements. Keep the framing on Gateworks' automation and performance and the Irvine improvements. Do NOT reference the footprint decision, any acquisition activity, or any site consolidation – that is confidential and the site teams are not briefed.",
+S["1.1"] = ("Kickoff & Objectives", "Mon 10/19 · 9:00 – 9:15", "David, John, Gateworks leadership [[TBC]]",
+ "TIME-BOX: 15 minutes – pick 3–4 questions (success, Jason's objectives, what must not be lost, top worry). Alignment, not requirements. Keep the framing on Gateworks' automation and performance and the Irvine improvements. Do NOT reference the footprint decision, any acquisition activity, or any site consolidation – that is confidential and the site teams are not briefed.",
  [("Defining success", [
    "In 12–18 months, what should Gateworks be able to do that it can't do today – and what must it NOT lose?",
    "When you say 'keep the level of automation and performance', what are the 3–5 specific things you mean?",
@@ -23,8 +23,8 @@ S["1.1"] = ("Kickoff & Objectives", "Mon 10/19 · 8:00 – 8:45", "David, John, 
    "What are we not asking about that we should be?",
    "What has been tried before that didn't stick?"])])
 
-S["1.2"] = ("Gateworks Operations Walk", "Mon 10/19 · 8:45 – 10:45", "Operations/production lead, quality lead, supervisors [[TBC]]",
- "Follow one real job end to end. 'Show me, don't tell me.' Capture where people touch a screen/scanner and where they leave the system (paper, spreadsheet, whiteboard). Photos only if the site allows – and see the ITAR/CUI note in 2.2 before capturing anything.",
+S["1.2"] = ("Gateworks Operations Walk", "Mon 10/19 · 9:15 – 10:45", "Operations/production lead, quality lead, supervisors [[TBC]]",
+ "TIME-BOX: 90 minutes. Follow one real job end to end. 'Show me, don't tell me.' Capture where people touch a screen/scanner and where they leave the system (paper, spreadsheet, whiteboard). Photos only if the site allows – and see the ITAR/CUI note in 2.2 before capturing anything.",
  [("Product and flow", [
    "What does Gateworks build, in what volumes and mix? High-mix/low-volume? Any build-to-order vs. build-to-stock?",
    "Walk us through the flow: receiving → kitting → build/assembly → test → pack/ship. Where are the queues?",
@@ -43,8 +43,8 @@ S["1.2"] = ("Gateworks Operations Walk", "Mon 10/19 · 8:45 – 10:45", "Operati
    "What are the 'tribal knowledge' tasks only one or two people can do?",
    "Where do people work around the system today – and why?"])])
 
-S["1.3"] = ("GWTrack Demo I – Production Execution & Traceability", "Mon 10/19 · 11:00 – 12:30", "GWTrack power users/admin, production control [[TBC]]",
- "Have them drive. Record screens/key fields as feature inventory rows in the Requirements tracker (tab 2) – one row per capability. Ask 'what does the system do automatically vs. what does a person do?' for each. Per client update: GWTrack will not be easily modified into an MES, so capture what it does today in enough detail to rationalize across NetSuite / Arena / a new MES.",
+S["1.3"] = ("GWTrack Demo I – Production Execution & Traceability", "Mon 10/19 · 11:00 – 12:00", "GWTrack power users/admin, production control [[TBC]]",
+ "TIME-BOX: 60 minutes (was 90) – prioritize the feature inventory and traceability; push automation/performance depth to 2.3 and any quality overflow to 1.4. Have them drive. Record screens/key fields as feature inventory rows in the Requirements tracker (tab 2) – one row per capability. Ask 'what does the system do automatically vs. what does a person do?' for each. Per client update: GWTrack will not be easily modified into an MES, so capture what it does today in enough detail to rationalize across NetSuite / Arena / a new MES.",
  [("Feature inventory – production", [
    "Walk the full lifecycle in GWTrack: order/job creation → release → execution → completion → close. Which parts are native GWTrack, which pull from NetSuite, which from Arena?",
    "What objects/records exist (jobs, operations, work centers, lots/serials, kits, test results)? Can we see the data model or a field list?",
@@ -64,7 +64,7 @@ S["1.3"] = ("GWTrack Demo I – Production Execution & Traceability", "Mon 10/19
    "How fast is the system on the floor? Any known slowdowns? Peak concurrent users?",
    "Where is it brittle – what breaks, who fixes it, and how long does it take?"])])
 
-S["1.4"] = ("GWTrack Demo II – Quality, Labor & Inventory", "Mon 10/19 · 1:15 – 3:15", "Quality lead, supervisors, inventory/materials [[TBC]]",
+S["1.4"] = ("GWTrack Demo II – Quality, Labor & Inventory", "Mon 10/19 · 1:00 – 3:00", "Quality lead, supervisors, inventory/materials [[TBC]]",
  "Compare directly to Irvine's practice (SharePoint QMS + manual RMA/rework/scrap tracking). The question for the readout is: what is the minimum quality capability that must exist in whichever system is chosen, and what else is nice to have.",
  [("Quality tracking", [
    "Show us how a defect is captured on the floor – who enters it, what fields, what codes? Where do the defect heatmaps come from and who uses them?",
@@ -84,13 +84,13 @@ S["1.4"] = ("GWTrack Demo II – Quality, Labor & Inventory", "Mon 10/19 · 1:15
    "How is standard/actual cost handled for WIP and finished goods? Who owns variances?",
    "What month-end steps depend on GWTrack data (WIP, scrap, labor, variances)?"])])
 
-S["1.5"] = ("Day 1 Wrap-up & Open Items", "Mon 10/19 · 3:30 – 4:30", "David, John, site leadership [[TBC]]",
+S["1.5"] = ("Day 1 Wrap-up & Open Items", "Mon 10/19 · 3:15 – 4:00", "David, John, site leadership [[TBC]]",
  "Internal Crowe debrief right after (15 min): update the tracker, tag open questions by owner, and send Sohaa the end-of-day note. NOTE: if any ITAR/CUI concern is raised, stop and confirm what may be shared with non-US Crowe personnel before sending notes.",
  [("Loose ends", [
    "What did we not get to see that we need to?", "Which documents/screens should we collect (and which can't leave the site)?",
    "Who else should join Day 2?"])])
 
-S["2.1"] = ("Systems Landscape & Integrations", "Tue 10/20 · 8:00 – 10:00", "IT/NetSuite admin, GWTrack admin, engineering (Arena) [[TBC]]",
+S["2.1"] = ("Systems Landscape & Integrations", "Tue 10/20 · 9:00 – 10:00", "IT/NetSuite admin, GWTrack admin, engineering (Arena) [[TBC]]",
  "Goal: a validated current-state application map for Gateworks (see Application inventory table at the end of this guide). Client update: rationalize the functions GWTrack provides across NetSuite and Arena – so for every function ask 'which system is the system of record, and which should be?' Grant is out Tue 10/20 – Rohit leads technical questions.",
  [("System of record by function", [
    "Take each capability – item master, BOM, routing, ECO/revision control, work orders, inventory, costing, quality, labor, document control, traceability, shipping – and tell us where it lives today: GWTrack, NetSuite, Arena, spreadsheets or other.",
@@ -125,7 +125,7 @@ S["2.2"] = ("Compliance, Security & Data Requirements", "Tue 10/20 · 10:15 – 
    "Audit trail expectations: electronic records, signatures, change history, retention periods.",
    "Customer audits (AS9100/ISO/quality system audits): what records must the system produce and how fast?"])])
 
-S["2.3"] = ("Capabilities to Keep: Automation & Performance", "Tue 10/20 · 12:45 – 2:45", "David, John, site leadership, power users [[TBC]]",
+S["2.3"] = ("Capabilities to Keep: Automation & Performance", "Tue 10/20 · 1:00 – 2:45", "David, John, site leadership, power users [[TBC]]",
  "This is the highest-value session for the next-phase scoping. Build a 'must not lose' list and score every capability seen in 1.3/1.4 by importance and by how hard it is to replicate. Run the capture live on a shared screen (tracker tab 2). Frame as 'what would it take' – never imply a decision has been made.",
  [("Must-not-lose list", [
    "From what we saw yesterday, which capabilities are the reason the floor runs well? Rank the top 10.",
@@ -144,8 +144,8 @@ S["2.3"] = ("Capabilities to Keep: Automation & Performance", "Tue 10/20 · 12:4
    "What was GWTrack not built to do that you'd need next (more users, more entities, more product lines)?",
    "What is the appetite for process change vs. replicating exactly what exists?"])])
 
-S["2.4"] = ("Requirements Read-back & Prioritization", "Tue 10/20 · 3:00 – 4:30", "David, John, site leadership [[TBC]]",
- "Read back every requirement captured in the tracker; get explicit Must/Should/Could on each. Where there's disagreement, capture both views. End by agreeing the follow-up list and owners. The team travels to Irvine that evening.",
+S["2.4"] = ("Requirements Read-back & Prioritization", "Tue 10/20 · 3:00 – 4:00", "David, John, site leadership [[TBC]]",
+ "TIME-BOX: 60 minutes (was 90) – read back only Must/Should candidates; park Could-haves in the tracker for async review. Read back every requirement captured in the tracker; get explicit Must/Should/Could on each. Where there's disagreement, capture both views. End by agreeing the follow-up list and owners. The team travels to Irvine that evening.",
  [("Read-back", [
    "Read the requirement list by area – did we capture it correctly? Anything missing?",
    "Assign Must / Should / Could (MoSCoW) with the reason."]),
@@ -154,8 +154,8 @@ S["2.4"] = ("Requirements Read-back & Prioritization", "Tue 10/20 · 3:00 – 4:
    "What documents will be sent and when (see data request)?",
    "What does Ezurio want in the readout – level of detail, audience, format?"])])
 
-S["3.1"] = ("Kickoff & Goals for Irvine", "Wed 10/21 · 8:00 – 8:30", "David, John, Irvine ops leadership [[TBC]]",
- "Irvine went live on NetSuite WMS + Manufacturing Mobile in July 2025 (MFG optimization UAT June 2025). Open by asking what has changed since – we haven't seen the floor since go-live. Hana/Kyle (Y-Hire) dial in from 10:15; confirm availability given India working hours.",
+S["3.1"] = ("Kickoff & Goals for Irvine", "Wed 10/21 · 9:00 – 9:15", "David, John, Irvine ops leadership [[TBC]]",
+ "TIME-BOX: 15 minutes. Irvine went live on NetSuite WMS + Manufacturing Mobile in July 2025 (MFG optimization UAT June 2025). Open by asking what has changed since – we haven't seen the floor since go-live. Hana/Kyle (Y-Hire) dial in from 10:30 (about 11pm IST); confirm availability given India working hours.",
  [("Where things stand", [
    "What has changed since the July 2025 go-live – volumes, products, headcount, process?",
    "What are the top 3 things frustrating the floor or the back office right now?",
@@ -164,8 +164,8 @@ S["3.1"] = ("Kickoff & Goals for Irvine", "Wed 10/21 · 8:00 – 8:30", "David, 
    "What would a great outcome from today look like for each of you?",
    "Which Irvine processes are you comfortable with being a baseline for other sites, and which aren't?"])])
 
-S["3.2"] = ("Floor Walk & Live Process Observation", "Wed 10/21 · 8:30 – 10:00", "Warehouse operators/manager, QC, production operators [[TBC]]",
- "Use the annotated Irvine process flow (04_Irvine_Process_Flow_Annotated.png) as the spine. Watch a real WO if one is staged. Validate each step against the Visio (July 2025) and the process outlines (QC does Transfer All + WO Issue per 2025 docs; the Visio shows the Material Handler lane – confirm who actually does it).",
+S["3.2"] = ("Floor Walk & Live Process Observation", "Wed 10/21 · 9:15 – 10:15", "Warehouse operators/manager, QC, production operators [[TBC]]",
+ "TIME-BOX: 60 minutes (was 90) – observe one WO flow; defer detailed control and timekeeping questions to 3.3. Use the annotated Irvine process flow (04_Irvine_Process_Flow_Annotated.png) as the spine. Watch a real WO if one is staged. Validate each step against the Visio (July 2025) and the process outlines (QC does Transfer All + WO Issue per 2025 docs; the Visio shows the Material Handler lane – confirm who actually does it).",
  [("Allocation, pick and stage", [
    "Walk a work order from creation: component allocation – how often are lines not fully committed? How are 'Special Order' lines reallocated?",
    "Pick in the WMS app: how often are partial picks needed and what happens (task closes → reverse pick)? Any workarounds?",
@@ -181,7 +181,7 @@ S["3.2"] = ("Floor Walk & Live Process Observation", "Wed 10/21 · 8:30 – 10:0
    "Lab/test work order for programmed boards – walk the 'Testing Work Order' flow.",
    "NOTE: Auto-Mark WOs Built workflow was suspended 10/1 (failed on WO 2447441 – BOM not defined for assembly item). Ask how WOs are being closed/marked built now and who decided to turn it off."])])
 
-S["3.3"] = ("Manufacturing Mobile: Process Controls & Timekeeping", "Wed 10/21 · 10:15 – 12:00", "Production manager, planner, cost accounting, QC lead [[TBC]] + Y-Hire team (dial-in)",
+S["3.3"] = ("Manufacturing Mobile: Process Controls & Timekeeping", "Wed 10/21 · 10:30 – 12:00", "Production manager, planner, cost accounting, QC lead [[TBC]] + Y-Hire team (dial-in)",
  "From the Aug assessment: Manufacturing Mobile has no control that prevents a run from starting without sufficient component material or an assigned standard cost, and has timekeeping gaps. Get specifics: how often it happens, what it costs, and what a control would need to do. Crowe Y-Hire team dials in – OK for Irvine content (no ITAR/CUI).",
  [("Material availability control", [
    "How often does a run start without all components? What is the impact (stoppage, expedite, scrap, cost errors)?",
@@ -199,7 +199,7 @@ S["3.3"] = ("Manufacturing Mobile: Process Controls & Timekeeping", "Wed 10/21 �
   ("Fit for other sites", [
    "Which of these gaps would you also expect at any site running Manufacturing Mobile?"])])
 
-S["3.4"] = ("Quality, Rework/RMA/Scrap & Post-Production Reconciliation", "Wed 10/21 · 12:45 – 2:00", "QC lead, warehouse manager, production manager [[TBC]]",
+S["3.4"] = ("Quality, Rework/RMA/Scrap & Post-Production Reconciliation", "Wed 10/21 · 1:00 – 2:00", "QC lead, warehouse manager, production manager [[TBC]]",
  "Compare with the Gateworks answers from 1.4 – same questions, different tools. Capture what the SharePoint QMS holds vs. what is manual spreadsheet. Dekit reconciliation (Actual vs. Expected, IA for scrap, bin transfer for return) is template/import-driven – quantify the effort.",
  [("Quality tracking", [
    "How is a defect or nonconformance recorded today (SharePoint QMS form, spreadsheet, paper)? Who looks at it and when?",
@@ -222,8 +222,8 @@ S["3.5"] = ("Optimization Workshop & Backlog", "Wed 10/21 · 2:15 – 3:45", "Ir
    "Rank by value and effort; who owns each? Dependencies on the future-state systems decision?",
    "Which items should wait for a bigger decision rather than be built now?"])])
 
-S["3.6"] = ("Week Wrap-up & Next Steps", "Wed 10/21 · 3:45 – 4:30", "David, John [[TBC]]",
- "Recap, confirm what the readout will contain and timing. Note: Jordan is on PTO Oct 23 – Nov 2; confirm who distributes the draft if it is ready before then (Grant/Rohit).",
+S["3.6"] = ("Week Wrap-up & Next Steps", "Wed 10/21 · 3:45 – 4:00", "David, John [[TBC]]",
+ "TIME-BOX: 15 minutes. Recap, confirm what the readout will contain and timing. Note: Jordan is on PTO Oct 23 – Nov 2; confirm who distributes the draft if it is ready before then (Grant/Rohit).",
  [("Recap and next steps", [
    "Play back top observations from Gateworks and Irvine – does that match your read?",
    "Open items and owners; when will pending documents arrive?",

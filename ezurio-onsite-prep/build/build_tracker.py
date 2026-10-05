@@ -154,6 +154,7 @@ open_items = [
  ("OI-006", "Coverage for Tue 10/20 (Grant PTO) – Rohit leading technical sessions", "Jordan / Grant", "Before 10/19", "Open"),
  ("OI-007", "Plan for draft distribution while Jordan is on PTO Oct 23 – Nov 2", "Jordan / Grant / Sohaa", "10/21", "Open"),
  ("OI-008", "Data request sent to Ezurio (last page of the client agenda)", "Jordan Piatek", "10/9", "Open"),
+ ("OI-010", "Agenda fix: Day 2 session 2.3 still starts 12:45 but lunch now runs 12:00–1:00 – confirm 2.3 = 1:00–2:45", "Jordan Piatek", "Before sending agenda", "Open"),
  ("OI-009", "Confirm why Auto-Mark WOs Built workflow was suspended 10/1 and current WO closing process", "Trevor Kanwal / Ezurio", "Before 10/21", "Open"),
 ]
 sheet(ws, ["ID", "Item", "Owner", "Due", "Status"], open_items, [9, 90, 32, 14, 10])

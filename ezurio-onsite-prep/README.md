@@ -8,5 +8,5 @@
 | 04_Irvine_Process_Flow_Annotated.png | Crowe only | Irvine current-state flow with validation questions. |
 | 05_Draft_Reply_to_Sohaa.md | Jordan | Draft reply (not sent). |
 
-`build/` holds the generator scripts (python-docx / openpyxl / matplotlib). Re-run `python3 build_*.py` from `build/` after editing content.
+`build/` holds generator scripts for 02–04. File 01 was hand-edited by Jordan (9:00–4:00 days, 12:00–1:00 lunch) and is the source of truth for times; `build/build_agenda.py` is the superseded first draft – do not re-run it over 01.
 Do not put references to acquisition activity, a third site or consolidation in any client-facing file.
