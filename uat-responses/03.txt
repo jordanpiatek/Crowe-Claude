@@ -1,0 +1,58 @@
+Scenario: 03 – P2P – Purchase Order Creation (#142544)
+Testers: Elisabetta Cesaroni, Wendy Bakker | Scenario status: Doing
+
+Comment:
+
+Hi Elisabetta / Wendy – thank you for the thorough testing. Every point from your feedback is addressed below. Items marked 🔗 are being worked and tracked; ✅ means no change is needed (answer provided).
+
+Failed tests:
+- Create PO from Supply Plan / release error ✅ When firming, only the Firm checkbox is needed. When releasing, the Release checkbox must be ticked before clicking Release Selected Order(s) – otherwise the error appears. When implementing a released order, a vendor must be selected; Solstice Germany is still pending Finance validation, so either choose another active/approved vendor or have Mariel approve it first. 🔗 #143791 (Doing) adds the Finance role to the vendor approval workflow and #143483 (To do) confirms the Quality Manager approver for KE vendors.
+- PO to Solstice Seeze for SO26003583 🔗 Same vendor-approval dependency as above. If it failed for a different reason please send us the PO/SO number and error text.
+
+Supply plan & vendors:
+1. How do we open the Planning Workbench / supply plan?
+   1. ✅ Step-by-step navigation is in scenario #130247 (Review Order Alerts) and #130248 (Run MRP). Note: a Sales Order whose SRD is in the past will not appear in the plan – set a future SRD, refresh the repository, then retest. 🔗 #143944 (Done) (investigated – cause was a late SRD) and #143948 (To Do) (retest with updated SRD).
+2. Is the vendor linked by default from the item record, or selected every time?
+   1. ✅ A vendor is required to implement a planned PO; if none is linked or the vendor is unapproved, select another active/approved vendor. 🔗 #144102 (To Do) completes missing vendor associations for Order Fulfillment accounts.
+3. Duplicate vendor names (e.g., two Creative Global Services records) – which to pick, and will it be consolidated before go-live?
+   1. The two CGS records appear to be separate (US vs. EU, e.g., V001541 for EU). Use the one matching the PO subsidiary for now; consolidation/de-duplication decision is open.
+4. NetSuite lets us add an item to a PO for a vendor that doesn't sell it
+   1. 🔗 #143447 (Confirmed Gap) – Restrict Item Purchasing to Approved Vendors.
+5. CGS and Solstice China have no default billing address – who fixes it before go-live?
+   1. ✅ The vendor address file (Krayden Europe – Vendor Addresses V4.xlsx) is the source; by convention a vendor has a single billing address, which is always the default (Mark Hoebeke). 🔗 #143950 (To do) loads/marks missing default billing addresses; #143473 (00. Investigation Needed) covers the Inventory Specialist's ability to add/edit vendor addresses (why you couldn't change it).
+6. Can shipping info / incoterms be stored on the vendor and auto-populate the PO (e.g., CGS using our FedEx account)?
+   1. 🔗 #143474 (Gap/Fit Analysis Pending) (Gap/Fit – auto-populate incoterm & origin from vendor) and #143475 (To do) (missing incoterm/shipping account data on vendor records).
+7. Price-break notification shows at the top of the screen and can't be seen without scrolling
+   1. Logged for review – we will follow up with an answer or a work item.
+
+Order allocation, shipping & addresses:
+1. Cannot link both lines of PO02894 to SO26003543 (2nd line won't allocate)
+   1. 🔗 #143467 (Under Investigation) – the PO/SO linking suitelet was reading the wrong location field; fixed in SB3 and awaiting UAT retest. Please retry with an SO that has the Inventory Location filled in.
+2. PO02895 – goods ship to China warehouse (Lanxi) first, final site is Krayden Europe: which location?
+   1. ✅ Use the 3PL location (e.g., KE CN Lanxi Warehouse) on the PO, receive there, then create a Transfer Order from the 3PL to Krayden Europe BV. 🔗 #143448 (Confirmed Gap) (automating receipt/TO creation – parked, TO is manual for now) and #143482 (To do) (ship-to shows Krayden Europe instead of the 3PL address).
+
+PDF, emailing & approvals:
+1. Vendor/part details on the PDF differ (same part number, different descriptions)
+   1. ✅ PO PDF corrected – MPN now reflects on each line (confirmed in scenario 06).
+2. NetSuite lets us email a PO that is still pending approval
+   1. 🔗 #143449 (Confirmed Gap) – Restrict Sending PO PDFs.
+3. How do I approve a PO? Is changing the dropdown to Approved correct?
+   1. ✅ No – use the Approve / Reject buttons: from the dashboard reminder POs pending approval, open the PO and click Approve. Approving via the dropdown bypasses the workflow; 🔗 #143484 (Done) corrected Wendy's role (IS Supervisor) so this no longer works.
+4. No email notification for a PO pending approval – sandbox?
+   1. We are confirming that this notification is configured in SB3. In the meantime, use the dashboard reminder for POs pending approval.
+5. Extra email recipient search shows all contacts, not just the vendor's
+   1. 🔗 #143485 (Gap/Fit Analysis Pending) – Gap/Fit: vendor contacts on the email pop-up.
+6. Email tick-box doesn't work
+   1. Logged for review – we will follow up with an answer or a work item.
+7. Default signature in the Message tab
+   1. ✅ Each user sets this under Home > Set Preferences > General > Signature. 🔗 #143486 (Done) – signatures collected for Mariel and Elisabetta.
+
+Intercompany PO:
+1. Can't create PO to any of the 3 Krayden Inc vendors; 3 Krayden Europe accounts on the PO to MT
+   1. ✅ For intercompany testing use only: Krayden US (representing Vendor / Customer) and Krayden Europe BV (representing Vendor / Customer). 🔗 #143487 (00. Investigation Needed) – Intercompany POs did not work as expected; updated records to be sent for retest.
+
+----- INTERNAL – DO NOT PASTE -----
+- Duplicate vendor names (e.g., two Creative Global Services records) – which to pick, and will it be consolidated before go-live?: not tracked – create WI
+- Price-break notification shows at the top of the screen and can't be seen without scrolling: not tracked – create WI/enhancement
+- No email notification for a PO pending approval – sandbox?: not tracked – confirm whether notification is configured/works in SB3 and create WI
+- Email tick-box doesn't work: need details – which tick-box/screenshot; create WI

@@ -1,0 +1,22 @@
+Scenario: 07 – Warehouse – Receive Purchase Order (Item Receipt) (#142548)
+Tester: Justin Bleeker | Scenario status: Failed Testing
+
+Comment:
+
+Hi Justin – thanks for the feedback. Each point is below.
+
+1. Manufacturing date is missing
+   1. ✅ In WMS this is the Shelf Life Start Date field; in the UI set it via the Extended Lot Details icon. 🔗 #143490 (00. Investigation Needed) – the field not being visible on the mobile device and in the UI is under investigation.
+2. Where can we trace back the pictures taken during inbound?
+   1. ✅ Images are stored on the related Item Receipt under the Mobile App Attachment subtab. 🔗 #143491 (00. Investigation Needed) – attachments missing on some item receipts, under investigation.
+3. Date entry – select the year directly instead of scrolling months
+   1. ✅ In the date field, press `t` for today's date or type the date directly instead of using the picker.
+4. KEUR printers not in Sandbox
+   1. 🔗 #143492 (Done) – printer installation (Done); label printing is being re-tested.
+5. 3PL label: unclear "0.0864", no manufacturing date, no barcode, no item description
+   1. 🔗 #143495 (08. Functional Testing) – 3PL label PDF now carries item name, product code, variant name and barcode (see #137762); please do a test print and confirm. 🔗 #145145 (To do) – variant-name data needed from Davy.
+6. (Related)
+   1. 🔗 #143448 (Confirmed Gap) – automate 3PL receiving/TO creation (parked, TO is manual for now); 🔗 #143494 (Gap/Fit Analysis Pending) – report of lot numbers against PO receipts (Gap/Fit).
+
+----- INTERNAL – DO NOT PASTE -----
+- 3PL label: unclear "0.0864", no manufacturing date, no barcode, no item description: "0.0864" not explained – confirm what that value is

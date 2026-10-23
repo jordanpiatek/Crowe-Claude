@@ -1,0 +1,22 @@
+Scenario: 29 – MFG – CGS: Create Outsourced Purchase Order (#142583)
+Tester: Wendy Bakker | Scenario status: Doing
+
+Comment:
+
+Hi Wendy – feedback on PO02899 below.
+
+1. Only item on the SO was linked to my CGS vendor; we used the EU CGS vendor (V001541)
+   1. Logged for review – we will follow up with an answer or a work item.
+2. Billing isn't set up on the vendor; we have to select it
+   1. 🔗 #143950 (To do) – correct missing vendor billing addresses.
+3. PDF items and description missing
+   1. 🔗 #143952 (00. Investigation Needed) – outsourced PO PDF to print assembly, quantity, rate, billing/shipping.
+4. Shipping should auto-populate from the vendor
+   1. 🔗 #143474 (Gap/Fit Analysis Pending) / #143475 (To do) (scenario 03).
+5. Is this PO what we send to CGS, or the Work Order?
+   1. 🔗 #143960 (To Do) – instructions on outsourced PO / work order relationships.
+
+Also tracked from this scenario: #143953 (00. Investigation Needed) (PO02900 rate precision), #143955 (00. Investigation Needed) (VAT on PDF), #143954 (00. Investigation Needed) (tax), #143957 (00. Investigation Needed) (PC99 not applying), #143956 (To Do) (move Return Location), #143949 (To Do) (expected receipt date visibility).
+
+----- INTERNAL – DO NOT PASTE -----
+- Only item on the SO was linked to my CGS vendor; we used the EU CGS vendor (V001541): duplicate CGS vendors – see scenario 03 #2; create WI

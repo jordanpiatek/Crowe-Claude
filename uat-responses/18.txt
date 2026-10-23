@@ -1,0 +1,112 @@
+Scenario: 18 – O2C – Quote Creation, Approval & PDF (#142576)
+Testers: Wendy Bakker, Natalja Vasseur | Scenario status: Doing
+
+Comment:
+
+Hi Wendy / Natalja – thank you for the detailed testing (SO26003543, Quotes Q96541 and Q96542). All points are consolidated below. Many are tracked under neighbouring scenarios (19, 20, 38) – links given.
+
+A. Sales Order (SO26003543 – Alter):
+1. Tax error on save after updating customer City of Tax; nothing saved
+   1. 🔗 #143799 (To do) (confirm whether tax comes from the quote or latest customer record) and #143798 (To do) (customer tax registration on SOs).
+2. Customer name/invoice email updated on Customer didn't reflect on the SO created from the quote
+   1. 🔗 #143799 (To do) and #144104 (00. Investigation Needed) (ship-to company/attention). ✅ The Customer Invoice Email(s) must be populated on the customer before the SO – check the SO Billing subtab; if blank, update the customer record.
+3. Sales Rep shows "Sales Force Admin" – should be Raghav?
+   1. Logged for review – we will follow up with an answer or a work item.
+4. Quote remarks carry to the SO but don't print on the Order Confirmation
+   1. Logged for review – we will follow up with an answer or a work item.
+5. SO number should be automatic, not editable
+   1. Logged for review – we will follow up with an answer or a work item.
+6. Changing quantity resets the rate to 0 – keep the quote rate
+   1. (related only: #144109 (00. Investigation Needed) zero pricing on OF lines)
+7. PDF: label "Promised date" as "Expected shipping date"
+   1. Logged for review – we will follow up with an answer or a work item.
+8. Where does Supply Required by Date come from?
+   1. 🔗 #143803 (To do) – SRD defaulting logic documentation; #143945 (To Do) – supply-planning date logic documentation.
+9. How do I check the tax city on the order is correct?
+   1. 🔗 #143799 (To do) / #143798 (To do).
+10. Confirmation email: signature/name for CS using orders.eu@krayden.com
+   1. 🔗 #143804 (To do) – Wendy to provide the SO email template and signature.
+11. 3-line order prints as a 2-page confirmation
+   1. 🔗 Partly #144105 (To Do) (shipping address field position on SO PDF).
+12. No email for SO pending approval
+   1. 🔗 #143805 (To do) – send KE SO approval emails to CAS Supervisor role.
+13. Approval levels 3 & 4 (CFO / CEO) – assigned to Chris?
+   1. Logged for review – we will follow up with an answer or a work item.
+14. Where can I see on the SO that the invoice was sent?
+   1. ✅ Open the Invoice generated from the fulfillment (linked in the SO's related records) and check Communication > Messages. 🔗 #144114 (00. Investigation Needed), #144115 (To Do) – invoice exception reporting & email validation.
+
+B. Quote Q96542 / Customer Peak (C172295):
+1. Quote is prepaid but customer is Net 14 – why?
+   1. 🔗 #143946 (Gap/Fit Analysis Pending) / #143947 (Gap/Fit Analysis Pending) (prepaid processing definition, Gap/Fit).
+2. Item validation hard: no description on quote; old Krayden SKU not visible – load old SKUs?
+   1. Logged for review – we will follow up with an answer or a work item.
+3. Shipping entered on item line; no carrier/service visible
+   1. Logged for review – we will follow up with an answer or a work item.
+4. Payment term 14 Net frozen – who can update?
+   1. 🔗 #143807 (To do) – allow Finance to maintain customer payment terms.
+5. Where to record bank transfer/payment method; add Credit Card
+   1. 🔗 #143808 (To do) – Payment Method on the Customer, defaulting to transactions, with Credit Card added.
+6. Two lines for the same tax number; Alter reverts to NL
+   1. 🔗 #144107 (00. Investigation Needed) (duplicate VAT on PDF) and #143798 (To do).
+7. Label all billing addresses "Billing Address"
+   1. 🔗 #143809 (To do)
+8. Who cleans up duplicate customers?
+   1. 🔗 #143810 (Not Started) – duplicate merge scenario/instructions (Not Started).
+9. Explanation of Customer notes fields
+   1. Logged for review – we will follow up with an answer or a work item.
+10. Phone/email needed by warehouse for shipping booking
+   1. 🔗 #144110 (Gap/Fit Analysis Pending) – ship-to contact email for ShipHawk.
+11. Where to put warehouse packing/shipping instructions
+   1. Logged for review – we will follow up with an answer or a work item.
+12. Remove the 0-stock message (appears ~10 times)
+   1. Logged for review – we will follow up with an answer or a work item.
+13. Who can set/clear Credit Limit Hold & Past Due Hold?
+   1. Covered in scenario #142561 (Credit Hold & Release);
+
+C. Intercompany Sales Order:
+1. Customer, subsidiary and currency are mandatory – why?
+   1. Logged for review – we will follow up with an answer or a work item.
+2. We generated an SO from our own PO – shouldn't be possible
+   1. 🔗 Related: #143487 (00. Investigation Needed) (intercompany PO behaviour), scenario #142547.
+
+D. Quotes Q96541 / Q96542 (Natalja):
+1. Part description incomplete; key spec missing vs. LINQ
+   1. Logged for review – we will follow up with an answer or a work item.
+2. LOGA items missing; couldn't add Blue Ice Shipping Pack – Small (fixed price)
+   1. 🔗 #143792 (To do) – create Blue Ice/packaging items in SB3 and Production.
+3. Last-mile rates entered in Shipping don't print on PDF; should ShipHawk/Shipping be skipped in UAT?
+   1. Logged for review – we will follow up with an answer or a work item.
+4. PDF: Subsidiary printed under customer Bill-To; "Lead time" label missing
+   1. Logged for review – we will follow up with an answer or a work item.
+5. Quote email: disclaimer prints mid-body; customer message not transferred
+   1. 🔗 #143795 (To do) – obtain Quote email template (Raghav).
+6. Approval flow not working; all KE quotes must be approved even below $10K
+   1. 🔗 #143790 (To do) (update KE approval – note: current scope says remove thresholds and route to Sales Manager; please confirm "all quotes approved"), #143788 (To do) (why Operations Manager can approve), #143789 (To do) (dashboard saved search).
+7. Peak deviated costs: only first MOQ rate picked up
+   1. Logged for review – we will follow up with an answer or a work item.
+8. Last Mile entered as MISC using item "Shipping"
+   1. ✅ Noted.
+9. UoM missing on PDF
+   1. 🔗 #143793 (To do) – review missing item units.
+
+----- INTERNAL – DO NOT PASTE -----
+- Tax error on save after updating customer City of Tax; nothing saved: please share the error text/screenshot
+- Sales Rep shows "Sales Force Admin" – should be Raghav?: not tracked – create WI
+- Quote remarks carry to the SO but don't print on the Order Confirmation: not tracked – create WI
+- SO number should be automatic, not editable: not tracked – create WI
+- Changing quantity resets the rate to 0 – keep the quote rate: not tracked – create WI
+- PDF: label "Promised date" as "Expected shipping date": not tracked – create WI
+- 3-line order prints as a 2-page confirmation: page-count not tracked
+- Approval levels 3 & 4 (CFO / CEO) – assigned to Chris?: needs client decision on approver roles – create WI
+- Quote is prepaid but customer is Net 14 – why?: confirm source of prepaid flag with Raghav
+- Item validation hard: no description on quote; old Krayden SKU not visible – load old SKUs?: not tracked – create WI; question for Davy
+- Shipping entered on item line; no carrier/service visible: not tracked – create WI
+- Explanation of Customer notes fields: documentation not tracked
+- Where to put warehouse packing/shipping instructions: not tracked – create WI
+- Remove the 0-stock message (appears ~10 times): not tracked – create WI
+- Who can set/clear Credit Limit Hold & Past Due Hold?: confirm role answer with Finance
+- Customer, subsidiary and currency are mandatory – why?: not tracked
+- Part description incomplete; key spec missing vs. LINQ: not tracked – item data; create WI
+- Last-mile rates entered in Shipping don't print on PDF; should ShipHawk/Shipping be skipped in UAT?: not tracked – create WI and give guidance
+- PDF: Subsidiary printed under customer Bill-To; "Lead time" label missing: not tracked – create WI
+- Peak deviated costs: only first MOQ rate picked up: not tracked – create WI; Davy

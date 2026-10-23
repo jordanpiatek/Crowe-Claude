@@ -1,7 +1,7 @@
 # UAT client-feedback responses (Ops scenarios, excludes Mariel's)
 
-Source: ADO query a113f941-8f06-41d0-9b00-c27cd314b23e (pulled 2026-10-23). Each file is a paste-ready consolidated reply for one scenario.
-Legend: ✅ answered · 🔗 tracked in a child/related work item (state shown) · 🟡 **[Jordan: …]** internal flag – no matching WI, strip before posting.
+Source: ADO query a113f941-8f06-41d0-9b00-c27cd314b23e (pulled 2026-10-23). Each `NN.txt` is a paste-ready reply for one scenario: copy everything under `Comment:` and stop at `----- INTERNAL – DO NOT PASTE -----`. Numbered items = client concern, nested item = our answer; `#ID` refs auto-link in ADO.
+Legend: ✅ answered · 🔗 tracked in a child/related work item (state shown) · 🟡 **[Jordan: …]** no matching WI; flagged notes now sit in each file's INTERNAL block, and those concerns read "Logged for review" in the paste text.
 
 | Scenario | Feedback from | Open concerns w/o a WI (🟡) |
 |---|---|---|

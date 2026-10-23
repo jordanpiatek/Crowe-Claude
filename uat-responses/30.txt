@@ -1,0 +1,17 @@
+Scenario: 30 – MFG – CGS: Create Outsourced Work Order (#142584)
+Tester: Wendy Bakker | Scenario status: Doing
+
+Comment:
+
+1. Where does Supply By Date come from (item lead time or PO field)?
+   1. 🔗 #143945 (To Do) – documenting supply-by/expected-receipt/production date logic; #143941 (To do) – lead times.
+2. Print BOM document looks off
+   1. Logged for review – we will follow up with an answer or a work item.
+3. Assembly 601807 (8 rolls) needs 6× 232870 but the WO doesn't show it
+   1. 🔗 #143939 (To do) – BOM quantities being corrected (4 source rolls for 8 finished rolls).
+4. How can we see on the WO that the big logs (232870) must be purchased?
+   1. 🔗 #143940 (To do) – KE BOM saved search;
+
+----- INTERNAL – DO NOT PASTE -----
+- Print BOM document looks off: not tracked – create WI
+- How can we see on the WO that the big logs (232870) must be purchased?: WO visibility not tracked

@@ -1,0 +1,26 @@
+Scenario: 22 – Fulfillment – Pack & Ship via ShipHawk (Tentative) (#142552)
+Tester: Justin Bleeker | Scenario status: Doing
+
+Comment:
+
+Hi Justin – thanks for the feedback. None of these points currently has a matching work item, so we are logging them:
+
+1. Which label is "PackShip Carton Label"?
+   1. Logged for review – we will follow up with an answer or a work item.
+2. Rename "Print" to something clearer, e.g., "Print Packing Slip"
+   1. Logged for review – we will follow up with an answer or a work item.
+3. Can't split 500-pad lines across multiple boxes while packing (only after Unpack)
+   1. Logged for review – we will follow up with an answer or a work item.
+4. Packaging, weight and dimensions missing on the CMR
+   1. Logged for review – we will follow up with an answer or a work item.
+5. Packing slip should say "cm & kg" not "centimeters & KILOGRAM"
+   1. Logged for review – we will follow up with an answer or a work item.
+
+Related: 🔗 #144110 (Gap/Fit Analysis Pending) – ship-to contact email for ShipHawk; 🔗 #143811 (To do) – packing/shipping user tracking. Note this scenario is unassigned in ADO.
+
+----- INTERNAL – DO NOT PASTE -----
+- Which label is "PackShip Carton Label"?: answer/confirm – create WI
+- Rename "Print" to something clearer, e.g., "Print Packing Slip": create WI
+- Can't split 500-pad lines across multiple boxes while packing (only after Unpack): create WI
+- Packaging, weight and dimensions missing on the CMR: create WI
+- Packing slip should say "cm & kg" not "centimeters & KILOGRAM": create WI
