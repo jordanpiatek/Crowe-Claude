@@ -1,9 +1,0 @@
-Scenario: 36 – O2C – CGS: Ship & Invoice Customer Order (#142564)
-Tester: Justin Bleeker | Scenario status: Doing
-
-Comment:
-
-Hi Justin – invoices normally generate automatically when the Item Fulfillment is marked Shipped. Reasons it may not: customer Invoice Email(s) blank or sales price below purchase price (invoice held for Order Desk review). 🔗 #144114 (00. Investigation Needed) / #144113 (00. Investigation Needed) / #144115 (To Do) cover these invoice exceptions. We'll also walk you through manual invoicing.
-
------ INTERNAL – DO NOT PASTE -----
-- confirm why the CGS order didn't auto-invoice – no WI

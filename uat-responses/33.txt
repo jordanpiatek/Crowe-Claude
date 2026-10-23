@@ -1,9 +1,0 @@
-Scenario: 33 – MFG – CGS: Transfer Finished Goods to KE Warehouse (#142587)
-Tester: Elisabetta Cesaroni | Scenario status: To do
-
-Comment:
-
-Hi Elisabetta – you're right: the scenario description is empty. Per the process: the Transfer Order from the CM location to the KE warehouse is generated automatically from the outsourced PO, then received at KE (see 🔗 #143960 (To Do) for the instructions update). 🔗 #143962 (Confirmed Gap) – carrying the SO allocation onto the generated TO (Confirmed Gap; use manual reporting until implemented).
-
------ INTERNAL – DO NOT PASTE -----
-- Scenario description is empty: add test steps to #142587

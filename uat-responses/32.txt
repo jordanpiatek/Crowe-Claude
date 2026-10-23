@@ -1,7 +1,0 @@
-Scenario: 32 – MFG – CGS: Complete Outsourced Work Order (#142586)
-Tester: Elisabetta Cesaroni, Wendy Bakker | Scenario status: Done
-
-Comment:
-
-- No Return location on the Item Receipt (only TO location) 🔗 #143956 (To Do) (move Return Location field) and #143960 (To Do) (updated outsourced-manufacturing instructions).
-- Assembly Build error "must be 8" while 6 big logs in stock / is the BOM correct? ✅ The BOM quantities were off; Davy corrected them and Elisabetta confirmed on 10/22 the step is complete. 🔗 #143939 (To do) remains open for remaining records.

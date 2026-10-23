@@ -1,9 +1,0 @@
-Scenario: 27 – MFG – Create Planning Rule Group (#142250)
-Tester: Davy Kops | Scenario status: To do
-
-Comment:
-
-Hi Davy – you don't have the Supply Planning role. 🔗 #143942 (Done) verified Inventory Specialist planning permissions (marked Done) – . Lead times used by planning are tracked in 🔗 #143941 (To do).
-
------ INTERNAL – DO NOT PASTE -----
-- re-check since Davy still lacks access
