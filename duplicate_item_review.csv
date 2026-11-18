@@ -1,0 +1,181 @@
+﻿Internal ID,Name,Type,Legacy Ext ID,Internal ID_1,Vendor Name,Proposed,Maximum of On Hand,Minimum of Date,New Proposed,Matches Client,Reason
+51878,235107,Inventory Item,22415,51878,,Use,,,Ignore,NO,No activity - keep larger ID
+52550,235108,Inventory Item,22415,52550,,Ignore,,,Use,NO,No activity - keep larger ID
+44231,232228,Inventory Item,ABC-AVR80/5LB,44231,ABC-AVR80/5LB,Ignore,,,Ignore,Yes,No activity - keep larger ID
+50196,234178,Inventory Item,ABC-AVR80/5LB,50196,AVR80 05L,Use,,,Use,Yes,No activity - keep larger ID
+40104,230976,Inventory Item,AF3-HWK9-75/Y76,40104,,Ignore,,,Ignore,Yes,No activity - keep larger ID
+49356,233315,Inventory Item,AF3-HWK9-75/Y76,49356,AF3-HWK9-75-0A4-001-X,Use,,,Use,Yes,No activity - keep larger ID
+48001,232695,Inventory Item,ALK-PCS500/M2,48001,PCM500+,Ignore,,9/30/2026,Use,NO,Activity present - keep older/smaller ID
+51897,233882,Inventory Item,ALK-PCS500/M2,51897,PCM500+,Use,,9/30/2026,Ignore,NO,Activity present - keep older/smaller ID
+45062,232564,Inventory Item,ANO-NiAl/20X20S6025,45062,EHYDRO ANO 1 Substrate: 6025 wire mesh,Ignore,,9/16/2026,Use,NO,Activity present - keep older/smaller ID
+51896,233881,Inventory Item,ANO-NiAl/20X20S6025,51896,EHYDROÂ®ANO 1 Substrate: 6025 wire mesh,Use,,9/16/2026,Ignore,NO,Activity present - keep older/smaller ID
+40706,231222,Inventory Item,AP-182/1GL,40706,6300000182,Use,,10/8/2026,Use,Yes,Activity present - keep older/smaller ID
+50322,234304,Inventory Item,AP-182/1GL,50322,6300000182,Ignore,,10/8/2026,Ignore,Yes,Activity present - keep older/smaller ID
+40365,231242,Inventory Item,AP-186/1LC,40365,6600000186,Use,380,3/11/2026,Use,Yes,Activity present - keep older/smaller ID
+50108,234090,Inventory Item,AP-186/1LC,50108,6600000186,Ignore,380,3/11/2026,Ignore,Yes,Activity present - keep older/smaller ID
+40695,231224,Inventory Item,AP-2166BN/1GL,40695,6300252166,Use,,10/16/2026,Use,Yes,Activity present - keep older/smaller ID
+50324,234306,Inventory Item,AP-2166BN/1GL,50324,6300252166,Ignore,,10/16/2026,Ignore,Yes,Activity present - keep older/smaller ID
+40352,231228,Inventory Item,AP-2235/1LC,40352,6600002235,Use,2760,1/12/2026,Use,Yes,Activity present - keep older/smaller ID
+50136,234118,Inventory Item,AP-2235/1LC,50136,6600002235,Ignore,2760,1/12/2026,Ignore,Yes,Activity present - keep older/smaller ID
+40351,231227,Inventory Item,AP-2331ZX/1LC,40351,6600972331,Use,420,1/12/2026,Use,Yes,Activity present - keep older/smaller ID
+50116,234098,Inventory Item,AP-2331ZX/1LC,50116,6600972331,Ignore,420,1/12/2026,Ignore,Yes,Activity present - keep older/smaller ID
+40399,231284,Inventory Item,AP-260HF/1L0,40399,116020.002,Use,,,Ignore,NO,No activity - keep larger ID
+50715,234697,Inventory Item,AP-260HF/1L0,50715,116020.002,Ignore,,,Use,NO,No activity - keep larger ID
+40403,231290,Inventory Item,AP-48FCW/0.031MSAC305NC1,40403,2470681402,Use,,5/3/2026,Use,Yes,Activity present - keep older/smaller ID
+50724,234706,Inventory Item,AP-48FCW/0.031MSAC305NC1,50724,2470681402,Ignore,,5/3/2026,Ignore,Yes,Activity present - keep older/smaller ID
+40402,231289,Inventory Item,AP-48FCW/0.20MSAC305NC1,40402,2470681401,Use,,,Ignore,NO,No activity - keep larger ID
+50725,234707,Inventory Item,AP-48FCW/0.20MSAC305NC1,50725,2470681401,Ignore,,,Use,NO,No activity - keep larger ID
+40381,231259,Inventory Item,AP-5252/1L0,40381,6600005252,Use,,8/13/2026,Use,Yes,Activity present - keep older/smaller ID
+50321,234303,Inventory Item,AP-5252/1L0,50321,6600005252,Ignore,,8/13/2026,Ignore,Yes,Activity present - keep older/smaller ID
+40358,231235,Inventory Item,AP-5252M/1L,40358,6600045252,Use,2660,3/11/2026,Use,Yes,Activity present - keep older/smaller ID
+50114,234096,Inventory Item,AP-5252M/1L,50114,6600045252,Ignore,2660,3/11/2026,Ignore,Yes,Activity present - keep older/smaller ID
+40369,231246,Inventory Item,AP-5744/1LB0,40369,5600055744,Use,100,4/22/2026,Use,Yes,Activity present - keep older/smaller ID
+50107,234089,Inventory Item,AP-5744/1LB0,50107,5600055744,Ignore,100,4/22/2026,Ignore,Yes,Activity present - keep older/smaller ID
+40370,231247,Inventory Item,AP-951/1L0,40370,6600000951,Use,1500,3/31/2026,Use,Yes,Activity present - keep older/smaller ID
+50109,234091,Inventory Item,AP-951/1L0,50109,6600000951,Ignore,1500,3/31/2026,Ignore,Yes,Activity present - keep older/smaller ID
+40385,231265,Inventory Item,AP-952S/1L0,40385,6600010952,Use,,,Ignore,NO,No activity - keep larger ID
+50134,234116,Inventory Item,AP-952S/1L0,50134,6600010952,Ignore,,,Use,NO,No activity - keep larger ID
+40348,231223,Inventory Item,AP-958/1GL,40348,6300000958,Use,,,Ignore,NO,No activity - keep larger ID
+50323,234305,Inventory Item,AP-958/1GL,50323,6300000958,Ignore,,,Use,NO,No activity - keep larger ID
+40353,231229,Inventory Item,AP-959T/1LC,40353,6600200959,Use,420,1/12/2026,Use,Yes,Activity present - keep older/smaller ID
+50115,234097,Inventory Item,AP-959T/1LC,50115,6600200959,Ignore,420,1/12/2026,Ignore,Yes,Activity present - keep older/smaller ID
+40354,231230,Inventory Item,AP-977/1LC,40354,6600000977,Use,400,1/12/2026,Use,Yes,Activity present - keep older/smaller ID
+50110,234092,Inventory Item,AP-977/1LC,50110,6600000977,Ignore,400,1/12/2026,Ignore,Yes,Activity present - keep older/smaller ID
+40350,231226,Inventory Item,AP-979/1LC,40350,6600000979,Use,4300,1/12/2026,Use,Yes,Activity present - keep older/smaller ID
+50111,234093,Inventory Item,AP-979/1LC,50111,6600000979,Ignore,4300,1/12/2026,Ignore,Yes,Activity present - keep older/smaller ID
+40349,231225,Inventory Item,AP-985M/1LC,40349,6600040985,Use,3260,1/12/2026,Use,Yes,Activity present - keep older/smaller ID
+50113,234095,Inventory Item,AP-985M/1LC,50113,6600040985,Ignore,3260,1/12/2026,Ignore,Yes,Activity present - keep older/smaller ID
+40384,231264,Inventory Item,AP-EF8800HF/1L0,40384,157583.002,Use,,,Ignore,NO,No activity - keep larger ID
+50482,234464,Inventory Item,AP-EF8800HF/1L0,50482,157583.002,Ignore,,,Use,NO,No activity - keep larger ID
+40357,231234,Inventory Item,AP-EM808/SAC305C1KGC,40357,7003050810,Use,60,4/7/2026,Use,Yes,Activity present - keep older/smaller ID
+50120,234102,Inventory Item,AP-EM808/SAC305C1KGC,50120,7003050810,Ignore,60,4/7/2026,Ignore,Yes,Activity present - keep older/smaller ID
+40356,231233,Inventory Item,AP-EM808/Sn96Ag4C1,40356,7003031310,Use,,5/11/2026,Use,Yes,Activity present - keep older/smaller ID
+50121,234103,Inventory Item,AP-EM808/Sn96Ag4C1,50121,7003031310,Ignore,,5/11/2026,Ignore,Yes,Activity present - keep older/smaller ID
+40373,231250,Inventory Item,AP-EM828/SAC305NC1CRT3,40373,7004030823,Use,60,4/22/2026,Use,Yes,Activity present - keep older/smaller ID
+50122,234104,Inventory Item,AP-EM828/SAC305NC1CRT3,50122,7004030823,Ignore,60,4/22/2026,Ignore,Yes,Activity present - keep older/smaller ID
+40372,231249,Inventory Item,AP-EM828/SAC305NC1T3,40372,7004030810,Use,,7/24/2026,Use,Yes,Activity present - keep older/smaller ID
+50123,234105,Inventory Item,AP-EM828/SAC305NC1T3,50123,7004030810,Ignore,,7/24/2026,Ignore,Yes,Activity present - keep older/smaller ID
+40367,231244,Inventory Item,AP-EP256/Sn62Pb36Ag2NC1T3,40367,7001020310,Use,,5/3/2026,Use,Yes,Activity present - keep older/smaller ID
+50118,234100,Inventory Item,AP-EP256/Sn62Pb36Ag2NC1T3,50118,7001020310,Ignore,,5/3/2026,Ignore,Yes,Activity present - keep older/smaller ID
+40371,231248,Inventory Item,AP-EP256/Sn63Pb37NC1T3,40371,7001020510,Use,,,Ignore,NO,No activity - keep larger ID
+50119,234101,Inventory Item,AP-EP256/Sn63Pb37NC1T3,50119,7001020510,Ignore,,,Use,NO,No activity - keep larger ID
+40374,231251,Inventory Item,AP-HM531/Sn63Pb37C1T3,40374,7010020510,Use,90,5/3/2026,Use,Yes,Activity present - keep older/smaller ID
+50124,234106,Inventory Item,AP-HM531/Sn63Pb37C1T3,50124,7010020510,Ignore,90,5/3/2026,Ignore,Yes,Activity present - keep older/smaller ID
+40383,231261,Inventory Item,AP-K100LDW/1LB,40383,2495741402,Use,,,Ignore,NO,No activity - keep larger ID
+50477,234459,Inventory Item,AP-K100LDW/1LB,50477,2495741402,Ignore,,,Use,NO,No activity - keep larger ID
+40364,231241,Inventory Item,AP-NF3000/1LC,40364,127997.002,Use,,3/6/2026,Use,Yes,Activity present - keep older/smaller ID
+50104,234086,Inventory Item,AP-NF3000/1LC,50104,127997.002,Ignore,,3/6/2026,Ignore,Yes,Activity present - keep older/smaller ID
+40355,231231,Inventory Item,AP-NF372TB/1LC,40355,6600022372,Use,3780,1/12/2026,Use,Yes,Activity present - keep older/smaller ID
+50112,234094,Inventory Item,AP-NF372TB/1LC,50112,6600022372,Ignore,3780,1/12/2026,Ignore,Yes,Activity present - keep older/smaller ID
+40377,231254,Inventory Item,AP-NP505HR/SAC305NC1T4,40377,7040211410,Use,,6/9/2026,Use,Yes,Activity present - keep older/smaller ID
+50128,234110,Inventory Item,AP-NP505HR/SAC305NC1T4,50128,7040211410,Ignore,,6/9/2026,Ignore,Yes,Activity present - keep older/smaller ID
+40700,231274,Inventory Item,AP-OM325/SAC305NC0.5T4M19,40700,148802,Use,,,Ignore,NO,No activity - keep larger ID
+50504,234486,Inventory Item,AP-OM325/SAC305NC0.5T4M19,50504,148802,Ignore,,,Use,NO,No activity - keep larger ID
+40703,231282,Inventory Item,AP-OM338/1G0,40703,143732,Use,,,Ignore,NO,No activity - keep larger ID
+50714,234696,Inventory Item,AP-OM338/1G0,50714,143732,Ignore,,,Use,NO,No activity - keep larger ID
+40406,231294,Inventory Item,AP-OM338PT/1G,40406,157841,Use,,,Ignore,NO,No activity - keep larger ID
+50731,234713,Inventory Item,AP-OM338PT/1G,50731,157841,Ignore,,,Use,NO,No activity - keep larger ID
+40693,231208,Inventory Item,AP-OM340/SAC305NC1T4,40693,152800,Use,5,5/21/2026,Use,Yes,Activity present - keep older/smaller ID
+50102,234084,Inventory Item,AP-OM340/SAC305NC1T4,50102,152800,Ignore,5,5/21/2026,Ignore,Yes,Activity present - keep older/smaller ID
+40696,231232,Inventory Item,AP-OM535/SBX02NC1T4,40696,163376,Use,280,3/26/2026,Use,Yes,Activity present - keep older/smaller ID
+50106,234088,Inventory Item,AP-OM535/SBX02NC1T4,50106,163376,Ignore,280,3/26/2026,Ignore,Yes,Activity present - keep older/smaller ID
+40698,231262,Inventory Item,AP-OM550/HRL1NC1T4,40698,243872,Use,20,4/1/2026,Use,Yes,Activity present - keep older/smaller ID
+50480,234462,Inventory Item,AP-OM550/HRL1NC1T4,50480,243872,Ignore,20,4/1/2026,Ignore,Yes,Activity present - keep older/smaller ID
+40699,231263,Inventory Item,AP-OM550/HRL1NC1T5,40699,246836,Use,15,3/26/2026,Use,Yes,Activity present - keep older/smaller ID
+50481,234463,Inventory Item,AP-OM550/HRL1NC1T5,50481,246836,Ignore,15,3/26/2026,Ignore,Yes,Activity present - keep older/smaller ID
+40404,231291,Inventory Item,AP-POP33/771NC1T6,40404,154555,Use,,7/1/2026,Use,Yes,Activity present - keep older/smaller ID
+50278,234260,Inventory Item,AP-POP33/771NC1T6,50278,154555,Ignore,,7/1/2026,Ignore,Yes,Activity present - keep older/smaller ID
+40705,231293,Inventory Item,AP-POP707/1G,40705,152350,Use,,,Ignore,NO,No activity - keep larger ID
+50730,234712,Inventory Item,AP-POP707/1G,50730,152350,Ignore,,,Use,NO,No activity - keep larger ID
+40366,231243,Inventory Item,AP-R520A/SAC305C1T3,40366,7019030810,Use,,7/2/2026,Use,Yes,Activity present - keep older/smaller ID
+50125,234107,Inventory Item,AP-R520A/SAC305C1T3,50125,7019030810,Ignore,,7/2/2026,Ignore,Yes,Activity present - keep older/smaller ID
+40375,231252,Inventory Item,AP-R562/Sn63Pb37C1CRT3,40375,7021020523,Use,205,4/22/2026,Use,Yes,Activity present - keep older/smaller ID
+50126,234108,Inventory Item,AP-R562/Sn63Pb37C1CRT3,50126,7021020523,Ignore,205,4/22/2026,Ignore,Yes,Activity present - keep older/smaller ID
+40395,231277,Inventory Item,AP-RF741/1G0,40395,7025010003,Use,,,Ignore,NO,No activity - keep larger ID
+50710,234692,Inventory Item,AP-RF741/1G0,50710,7025010003,Ignore,,,Use,NO,No activity - keep larger ID
+40376,231253,Inventory Item,AP-RF771/1G0,40376,7026010003,Use,750,4/22/2026,Use,Yes,Activity present - keep older/smaller ID
+50127,234109,Inventory Item,AP-RF771/1G0,50127,7026010003,Ignore,750,4/22/2026,Ignore,Yes,Activity present - keep older/smaller ID
+40382,231260,Inventory Item,AP-SAC305B/1KB,40382,54567,Use,,5/3/2026,Use,Yes,Activity present - keep older/smaller ID
+50476,234458,Inventory Item,AP-SAC305B/1KB,50476,54567,Ignore,,5/3/2026,Ignore,Yes,Activity present - keep older/smaller ID
+40387,231267,Inventory Item,AP-SAC305BK/1KB,40387,KUPING SAC305,Use,150,5/3/2026,Use,Yes,Activity present - keep older/smaller ID
+50485,234467,Inventory Item,AP-SAC305BK/1KB,50485,KUPING SAC305,Ignore,150,5/3/2026,Ignore,Yes,Activity present - keep older/smaller ID
+40398,231283,Inventory Item,AP-SAC305SW/0.60MKG,40398,240828,Use,,,Ignore,NO,No activity - keep larger ID
+49951,233930,Inventory Item,AP-SAC305SW/0.60MKG,49951,240828,Ignore,,,Use,NO,No activity - keep larger ID
+40336,231209,Inventory Item,AP-SC7525/1L0,40336,154242.002,Use,,,Ignore,NO,No activity - keep larger ID
+50105,234087,Inventory Item,AP-SC7525/1L0,50105,154242.002,Ignore,,,Use,NO,No activity - keep larger ID
+40701,231278,Inventory Item,AP-SELECT10/1GL,40701,6300018010,Use,,4/7/2026,Use,Yes,Activity present - keep older/smaller ID
+50711,234693,Inventory Item,AP-SELECT10/1GL,50711,6300018010,Ignore,,4/7/2026,Ignore,Yes,Activity present - keep older/smaller ID
+40388,231268,Inventory Item,AP-SM110/1L0,40388,146959.002,Use,,,Ignore,NO,No activity - keep larger ID
+50486,234468,Inventory Item,AP-SM110/1L0,50486,146959.002,Ignore,,,Use,NO,No activity - keep larger ID
+40397,231281,Inventory Item,AP-TMP/1EA,40397,150607,Use,,,Ignore,NO,No activity - keep larger ID
+50713,234695,Inventory Item,AP-TMP/1EA,50713,150607,Ignore,,,Use,NO,No activity - keep larger ID
+40347,231221,Inventory Item,AP-TR7Sn42Bi57.6Ag0.4/PF0805,40347,161670,Use,30,8/27/2026,Use,Yes,Activity present - keep older/smaller ID
+50320,234302,Inventory Item,AP-TR7Sn42Bi57.6Ag0.4/PF0805,50320,161670,Ignore,30,8/27/2026,Ignore,Yes,Activity present - keep older/smaller ID
+40697,231258,Inventory Item,AP-TSF6502JCR/1G0,40697,300103,Use,1260,4/22/2026,Use,Yes,Activity present - keep older/smaller ID
+50318,234300,Inventory Item,AP-TSF6502JCR/1G0,50318,300103,Ignore,1260,4/22/2026,Ignore,Yes,Activity present - keep older/smaller ID
+40379,231256,Inventory Item,AP-TSF6522RH/1G0,40379,901003,Use,10500,3/31/2026,Use,Yes,Activity present - keep older/smaller ID
+50133,234115,Inventory Item,AP-TSF6522RH/1G0,50133,901003,Ignore,10500,3/31/2026,Ignore,Yes,Activity present - keep older/smaller ID
+40378,231255,Inventory Item,AP-TSF6852/1G0,40378,900214,Use,5415,4/29/2026,Use,Yes,Activity present - keep older/smaller ID
+50132,234114,Inventory Item,AP-TSF6852/1G0,50132,900214,Ignore,5415,4/29/2026,Ignore,Yes,Activity present - keep older/smaller ID
+40380,231257,Inventory Item,AP-TSFULR18/1G0,40380,303027,Use,,5/12/2026,Use,Yes,Activity present - keep older/smaller ID
+50317,234299,Inventory Item,AP-TSFULR18/1G0,50317,303027,Ignore,,5/12/2026,Ignore,Yes,Activity present - keep older/smaller ID
+40702,231280,Inventory Item,AP-WS820/SAC305NC1T4M18,40702,153515,Use,,,Ignore,NO,No activity - keep larger ID
+50712,234694,Inventory Item,AP-WS820/SAC305NC1T4M18,50712,153515,Ignore,,,Use,NO,No activity - keep larger ID
+42063,231524,Inventory Item,CAT-NiMoAl/94X73.5S4625,42063,,Ignore,,8/4/2026,Use,NO,Activity present - keep older/smaller ID
+51907,233909,Inventory Item,CAT-NiMoAl/94X73.5S4625,51907,EHYDROÂ®Coral-II Substrate: 4625 wire  mesh,Use,,8/4/2026,Ignore,NO,Activity present - keep older/smaller ID
+49263,233222_OLD,Inventory Item,F-6975/P15K,49263,F-6975,Ignore,,,Ignore,Yes,No activity - keep larger ID
+51947,233222,Inventory Item,F-6975/P15K,51947,F-6975,Use,,,Use,Yes,No activity - keep larger ID
+40296,231168,Inventory Item,GT-W170MG/V1-1S18M11.6G1K,40296,,Ignore,,,Ignore,Yes,No activity - keep larger ID
+49782,233741,Inventory Item,GT-W170MG/V1-1S18M11.6G1K,49782,GT-W170 (S1-1),Use,,,Use,Yes,No activity - keep larger ID
+40091,230963,Inventory Item,MCL-C10/AA62A,40091,,Use,,,Ignore,NO,No activity - keep larger ID
+49210,233168,Inventory Item,MCL-C10/AA62A,49210,Melochem 791,Ignore,,,Use,NO,No activity - keep larger ID
+40086,230958,Inventory Item,NNPRF1.0/1L,40086,F805100.2000,Ignore,,5/3/2026,Use,NO,Activity present - keep older/smaller ID
+49177,233135,Inventory Item,NNPRF1.0/1L,49177,F805100.2000,Use,,5/3/2026,Ignore,NO,Activity present - keep older/smaller ID
+40097,230969,Inventory Item,NNPRF2.1/1L,40097,F805105.1000,Ignore,,5/3/2026,Use,NO,Activity present - keep older/smaller ID
+49252,233211,Inventory Item,NNPRF2.1/1L,49252,F805105.1000,Use,,5/3/2026,Ignore,NO,Activity present - keep older/smaller ID
+40102,230974,Inventory Item,NNPRF8.4/1LA,40102,F805185.1000,Ignore,,5/3/2026,Use,NO,Activity present - keep older/smaller ID
+49280,233239,Inventory Item,NNPRF8.4/1LA,49280,F805185.1000,Use,,5/3/2026,Ignore,NO,Activity present - keep older/smaller ID
+40142,231014,Inventory Item,PF1-HLF8-15/20X30,40142,,Ignore,,,Ignore,Yes,No activity - keep larger ID
+49672,233631,Inventory Item,PF1-HLF8-15/20X30,49672,20 x 30cm | A4 Membrane,Use,,,Use,Yes,No activity - keep larger ID
+47189,232676,Inventory Item,PIT0.5S-UT-RL/50.8,47189,CGS-8257SL,Ignore,,9/24/2026,REVIEW,,Assembly + on hand/date activity
+51186,601767,Assembly,PIT0.5S-UT-RL/50.8,51186,CGS-8257SL,Use,,9/24/2026,REVIEW,,Assembly + on hand/date activity
+40905,231322,Inventory Item,PIT0.5S-UT/508,40905,CGS-8257S,Ignore,,5/6/2026,Use,NO,Activity present - keep older/smaller ID
+49116,233074,Inventory Item,PIT0.5S-UT/508,49116,CGS-8257S,Use,,5/6/2026,Ignore,NO,Activity present - keep older/smaller ID
+44559,232252,Inventory Item,PIT0.5S-UT/9.52,44559,,Ignore,1,9/15/2026,REVIEW,,Assembly + on hand/date activity
+51142,601723,Assembly,PIT0.5S-UT/9.52,51142,CGS-8257S,Use,1,9/15/2026,REVIEW,,Assembly + on hand/date activity
+48650,232834,Inventory Item,PIT1N-ALUM/100,48650,CGS-7659,Ignore,,,Ignore,Yes,Assembly type consolidation (no activity)
+51129,601710,Assembly,PIT1N-ALUM/100,51129,CGS-7659,Use,,,Use,Yes,Assembly type consolidation (no activity)
+48736,232905,Inventory Item,PIT1N-ALUM/152.4,48736,CGS-7659,Ignore,,10/19/2026,REVIEW,,Assembly + on hand/date activity
+51130,601711,Assembly,PIT1N-ALUM/152.4,51130,CGS-7659,Use,,10/19/2026,REVIEW,,Assembly + on hand/date activity
+41227,231406,Inventory Item,PIT1N-ALUM/500-3,41227,CGS-7659,Ignore,,6/12/2026,Use,NO,Activity present - keep older/smaller ID
+49114,233072,Inventory Item,PIT1N-ALUM/500-3,49114,CGS-7659,Use,,6/12/2026,Ignore,NO,Activity present - keep older/smaller ID
+40070,230942,Inventory Item,PIT2S-RL/304.8,40070,,Ignore,,,Ignore,Yes,No activity - keep larger ID
+52650,235109,Inventory Item,PIT2S-RL/304.8,52650,CGS-8658,Use,,,Use,Yes,No activity - keep larger ID
+40073,230945,Inventory Item,PIT2SD/A4,40073,,Ignore,,,Ignore,Yes,No activity - keep larger ID
+42101,231549,Inventory Item,PIT2SD/A4,42101,CGS-8360-2L,Use,,,Use,Yes,No activity - keep larger ID
+42088,231538,Inventory Item,PIT5N/100,42088,PIT5N/100,Ignore,,8/20/2026,REVIEW,,Assembly + on hand/date activity
+51080,601661,Assembly,PIT5N/100,51080,CGS-7258(5 mil),Use,,8/20/2026,REVIEW,,Assembly + on hand/date activity
+40239,231111,Inventory Item,PTM7000/040P40,40239,132437,Ignore,16000,4/16/2026,Use,NO,Activity present - keep older/smaller ID
+48945,233000,Inventory Item,PTM7000/040P40,48945,132437,Use,16000,4/16/2026,Ignore,NO,Activity present - keep older/smaller ID
+40092,230964,Inventory Item,RCS320/H48A,40092,,Ignore,,,Ignore,Yes,No activity - keep larger ID
+49214,233172,Inventory Item,RCS320/H48A,49214,COW3.10,Use,,,Use,Yes,No activity - keep larger ID
+40117,230989,Inventory Item,RCS530/H48A,40117,,Ignore,,,Ignore,Yes,No activity - keep larger ID
+49534,233493,Inventory Item,RCS530/H48A,49534,COW5.21,Use,,,Use,Yes,No activity - keep larger ID
+40283,231155,Inventory Item,RCS620/25T5S15K1,40283,,Ignore,,,Ignore,Yes,No activity - keep larger ID
+49717,233676,Inventory Item,RCS620/25T5S15K1,49717,RB402 - 250mm x 5mm x 15mm (Slot),Use,,,Use,Yes,No activity - keep larger ID
+40310,231182,Inventory Item,TGP8000PT/01-0.75S457,40310,,Ignore,,5/4/2026,Use,NO,Activity present - keep older/smaller ID
+49516,233475,Inventory Item,TGP8000PT/01-0.75S457,49516,10668097,Use,,5/4/2026,Ignore,NO,Activity present - keep older/smaller ID
+48848,106000,Inventory Item,VLIQA100ML,48848,VLIQA100ML,Ignore,,,Ignore,Yes,No activity - keep larger ID
+51641,106019,Inventory Item,VLIQA100ML,51641,VLIQA100ML,Use,,,Use,Yes,No activity - keep larger ID
+40119,230991,Inventory Item,WS360/H48A,40119,,Ignore,,,Ignore,Yes,No activity - keep larger ID
+49203,233161,Inventory Item,WS360/H48A,49203,WOW7.60,Use,,,Use,Yes,No activity - keep larger ID
+40120,230992,Inventory Item,WS360/H48C,40120,,Ignore,,,Ignore,Yes,No activity - keep larger ID
+49204,233162,Inventory Item,WS360/H48C,49204,WOW7.60,Use,,,Use,Yes,No activity - keep larger ID
+40281,231153,Inventory Item,WS800/25T5S15K1,40281,,Ignore,,,Ignore,Yes,No activity - keep larger ID
+49874,233833,Inventory Item,WS800/25T5S15K1,49874,LDAT - 250mm x 5mm x 15mm (Slot),Use,,,Use,Yes,No activity - keep larger ID
+40308,231180,Inventory Item,WS810/23T15S5K1,40308,,Ignore,,5/4/2026,Use,NO,Activity present - keep older/smaller ID
+49675,233634,Inventory Item,WS810/23T15S5K1,49675,230mm x 15mm x 5mm (Slot) | EVL-8100 Elastowet-Î±,Use,,5/4/2026,Ignore,NO,Activity present - keep older/smaller ID
+40307,231179,Inventory Item,WS810/23T15S7K1,40307,,Ignore,,5/4/2026,Use,NO,Activity present - keep older/smaller ID
+49676,233635,Inventory Item,WS810/23T15S7K1,49676,230mm x 15mm x 7mm (Slot) | EVL-8100 Elastowet-Î±,Use,,5/4/2026,Ignore,NO,Activity present - keep older/smaller ID
+40282,231154,Inventory Item,WS830/25T5S15K1,40282,,Ignore,,,Ignore,Yes,No activity - keep larger ID
+49834,233793,Inventory Item,WS830/25T5S15K1,49834,HB337 - 250mm x 5mm x 15mm (Slot),Use,,,Use,Yes,No activity - keep larger ID
